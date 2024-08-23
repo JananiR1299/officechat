@@ -40,6 +40,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
+    "copy:config:dist": "shx cp staticwebapp.config.json dist/",
   },
   "eslintConfig": {
     "extends": [
