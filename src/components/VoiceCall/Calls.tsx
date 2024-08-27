@@ -136,7 +136,7 @@ const AgoraVoiceChat: React.FC = () => {
         console.error("Failed to initialize RTC:", error);
       }
     },
-    [rtcUid, handleUserJoined, handleUserPublished, handleUserLeft, appid]
+    [rtcUid, handleUserJoined, handleUserPublished, handleUserLeft]
   );
 
   const enterRoom = useCallback(async () => {

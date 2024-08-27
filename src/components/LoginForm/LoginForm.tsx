@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import Button from "@mui/material/Button";
+
+import Link from "@mui/material/Link";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import styled, { createGlobalStyle } from "styled-components";
 import { useNavigate } from "react-router-dom";
@@ -268,13 +270,13 @@ const LoginForm: React.FC = () => {
             <div className="signUp">
               <span style={{ color: "#75767B" }}>
                 Don't have an account?{" "}
-                <a
-                  href="javascript:void(0);"
+                <Link
+                  href="#"
                   style={{ color: "#006FFC", cursor: "no-drop" }}
                   onClick={(e) => e.preventDefault()}
                 >
                   Signup here
-                </a>
+                </Link>
               </span>
             </div>
           </div>
