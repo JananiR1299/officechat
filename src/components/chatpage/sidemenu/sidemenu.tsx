@@ -11,6 +11,7 @@ import {
   CssBaseline,
   Divider,
   Icon,
+  Link,
   IconButton,
 } from "@mui/material";
 import "./SideMenu.css";
@@ -78,9 +79,9 @@ const ActivityContent: React.FC<ActivityContentProps> = ({
             sx={{ fontSize: "15px", color: "#006FFC", cursor: "no-drop" }}
           >
             <ChatIcon sx={{ fontSize: "20px" }} />
-            &nbsp;
-            <a
-              href="javascript:void(0);"
+
+            <Link
+              href="#"
               style={{
                 color: "#006FFC",
                 cursor: "no-drop",
@@ -89,7 +90,7 @@ const ActivityContent: React.FC<ActivityContentProps> = ({
               onClick={(e) => e.preventDefault()}
             >
               New chat
-            </a>
+            </Link>
           </IconButton>
         </Box>
         <Box
@@ -114,7 +115,7 @@ const ActivityContent: React.FC<ActivityContentProps> = ({
           >
             <PersonAddIcon sx={{ fontSize: "20px" }} />
             &nbsp;
-            <a
+            <Link
               href="#"
               style={{
                 color: "#006FFC",
@@ -124,7 +125,7 @@ const ActivityContent: React.FC<ActivityContentProps> = ({
               onClick={(e) => e.preventDefault()}
             >
               Invite to Teams
-            </a>
+            </Link>
           </IconButton>
         </Box>
       </Box>

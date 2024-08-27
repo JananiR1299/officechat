@@ -246,8 +246,8 @@ const LoginForm: React.FC = () => {
                 <FaEye onClick={togglePasswordVisibility} className="icon" />
               )}
             </div>
-            <a
-              href="javascript:void(0);"
+            <Link
+              href="#"
               style={{
                 color: "#006FFC",
                 marginLeft: "200px",
@@ -256,7 +256,7 @@ const LoginForm: React.FC = () => {
               onClick={(e) => e.preventDefault()}
             >
               Forgot Password?
-            </a>
+            </Link>
             <br />
             <br />
             {error && <p style={{ color: "red" }}>{error}</p>}
