@@ -9,10 +9,8 @@ import {
   Avatar,
   Box,
 } from "@mui/material";
-import GroupIcon from "@mui/icons-material/Group";
 import { useUser } from "../../context/UserContext";
 import io from "socket.io-client";
-import { Message, User } from "../ChatWindow/messagetypes";
 
 interface Contact {
   id: number;
@@ -34,7 +32,7 @@ const ContactList: React.FC<ContactListProps> = ({ onSelectUser }: any) => {
   // console.log(onSelectUser);
   // const [Group, setGroup] = useState();
   const { user, groups, setGroups } = useUser();
-  const [error, setError] = useState<string | null>(null);
+  const [, setError] = useState<string | null>(null);
   const [loggedInUsers, setLoggedInUsers] = useState<any[]>([]);
   // const [activeGroup, setActiveGroup] = useState<number | null>(null);
   const {
@@ -43,14 +41,9 @@ const ContactList: React.FC<ContactListProps> = ({ onSelectUser }: any) => {
     activeUser,
     setActiveUser,
     setSelectedUserId,
-    setselectActiveUser,
-    selectActiveUser,
     Contact,
     setContact,
   } = useUser();
-  const [userStatus, setUsersStatus] = useState<Map<number, boolean>>(
-    new Map()
-  );
 
   useEffect(() => {
     console.log("groupsgroups", `${process.env.REACT_APP_API_URL}`);
@@ -102,7 +95,13 @@ const ContactList: React.FC<ContactListProps> = ({ onSelectUser }: any) => {
 
       return () => clearInterval(interval); // Clean up on unmount
     }
-  }, [user]);
+  }, [
+    user,
+    onSelectUser,
+    setActiveUser,
+    setSelectedUserId,
+    user?.userdata?.UserID,
+  ]);
   useEffect(() => {
     // console.log(loggedInUsers);
     const updatedArray = Contact.map((item) => ({
@@ -110,7 +109,7 @@ const ContactList: React.FC<ContactListProps> = ({ onSelectUser }: any) => {
       isActive: loggedInUsers.includes(item.UserID) ? true : false,
     }));
     setContact(updatedArray);
-  }, [loggedInUsers]);
+  }, [loggedInUsers, Contact, setContact]);
 
   const handleContactClick = (userid: number) => {
     console.log(userid);

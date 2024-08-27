@@ -42,53 +42,6 @@ const AgoraVoiceChat: React.FC = () => {
   const [callID, setCallID] = useState<number | null>(null); // Track the current call ID
   const rtcUid = Math.floor(Math.random() * 2032).toString();
 
-  const initRtc = useCallback(
-    async (roomId: string) => {
-      try {
-        const client = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
-        setRtcClient(client);
-
-        client.on("user-joined", handleUserJoined);
-        client.on("user-published", handleUserPublished);
-        client.on("user-left", handleUserLeft);
-
-        await client.join(appid, roomId, null, rtcUid);
-        const localAudioTrack = await AgoraRTC.createMicrophoneAudioTrack();
-        if (!localAudioTrack) {
-          console.error("Failed to create local audio track");
-          return;
-        }
-        console.log("Local audio track created:", localAudioTrack);
-        setAudioTracks((prev) => ({ ...prev, localAudioTrack }));
-        await client.publish(localAudioTrack);
-        console.log("Local audio track published");
-
-        setMembers((prevMembers) => [...prevMembers, { uid: rtcUid }]);
-        console.log("Joined channel and published local audio track");
-
-        // Create a call entry in the database
-        const startTime = new Date().toISOString();
-        const response = await axios.post(
-          `${process.env.REACT_APP_API_URL}calls`,
-          {
-            CallerID: rtcUid,
-            ReceiverID: null,
-            GroupID: null,
-            StartTime: startTime,
-            EndTime: null,
-            CallType: "audio",
-            ScreenShared: false,
-          }
-        );
-
-        setCallID(response.data.id); // Store the call ID
-      } catch (error) {
-        console.error("Failed to initialize RTC:", error);
-      }
-    },
-    [rtcUid]
-  );
-
   const handleUserJoined = useCallback((user: { uid: UID }) => {
     setMembers((prevMembers) => [...prevMembers, { uid: user.uid.toString() }]);
     console.log("User joined:", user);
@@ -138,6 +91,53 @@ const AgoraVoiceChat: React.FC = () => {
     );
     console.log("User left:", user.uid);
   }, []);
+
+  const initRtc = useCallback(
+    async (roomId: string) => {
+      try {
+        const client = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
+        setRtcClient(client);
+
+        client.on("user-joined", handleUserJoined);
+        client.on("user-published", handleUserPublished);
+        client.on("user-left", handleUserLeft);
+
+        await client.join(appid, roomId, null, rtcUid);
+        const localAudioTrack = await AgoraRTC.createMicrophoneAudioTrack();
+        if (!localAudioTrack) {
+          console.error("Failed to create local audio track");
+          return;
+        }
+        console.log("Local audio track created:", localAudioTrack);
+        setAudioTracks((prev) => ({ ...prev, localAudioTrack }));
+        await client.publish(localAudioTrack);
+        console.log("Local audio track published");
+
+        setMembers((prevMembers) => [...prevMembers, { uid: rtcUid }]);
+        console.log("Joined channel and published local audio track");
+
+        // Create a call entry in the database
+        const startTime = new Date().toISOString();
+        const response = await axios.post(
+          `${process.env.REACT_APP_API_URL}calls`,
+          {
+            CallerID: rtcUid,
+            ReceiverID: null,
+            GroupID: null,
+            StartTime: startTime,
+            EndTime: null,
+            CallType: "audio",
+            ScreenShared: false,
+          }
+        );
+
+        setCallID(response.data.id); // Store the call ID
+      } catch (error) {
+        console.error("Failed to initialize RTC:", error);
+      }
+    },
+    [rtcUid, handleUserJoined, handleUserPublished, handleUserLeft, appid]
+  );
 
   const enterRoom = useCallback(async () => {
     await initRtc("main");

@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, { MouseEvent, useEffect, useState, useRef } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   Box,
   IconButton,
@@ -137,7 +137,7 @@ const Header: React.FC<HeaderProps> = ({ selectedUser, onGroupCreate }) => {
         clearInterval(callTimerRef.current);
       }
     };
-  }, [token, user]);
+  }, [token, user, incomingCall]);
 
   const startCallTimer = () => {
     setCallDuration(0); // Reset the timer

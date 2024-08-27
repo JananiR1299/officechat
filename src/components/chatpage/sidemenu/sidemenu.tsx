@@ -80,12 +80,13 @@ const ActivityContent: React.FC<ActivityContentProps> = ({
             <ChatIcon sx={{ fontSize: "20px" }} />
             &nbsp;
             <a
-              href="javascript:void(0)"
+              href="#"
               style={{
                 color: "#006FFC",
                 cursor: "no-drop",
                 textDecoration: "none",
               }}
+              onClick={(e) => e.preventDefault()}
             >
               New chat
             </a>
@@ -120,6 +121,7 @@ const ActivityContent: React.FC<ActivityContentProps> = ({
                 cursor: "no-drop",
                 textDecoration: "none",
               }}
+              onClick={(e) => e.preventDefault()}
             >
               Invite to Teams
             </a>

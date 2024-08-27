@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import {
   Box,
   Typography,
@@ -199,6 +199,7 @@ const SingleChatContent: React.FC<SingleChatContentProps> = ({
       >
         <Box sx={style}>
           <img
+            alt="Image"
             src={process.env.IMAGE_URL + imagename}
             style={{ maxWidth: "50%", maxHeight: "50%" }}
           />

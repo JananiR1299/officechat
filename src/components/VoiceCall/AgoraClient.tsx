@@ -14,10 +14,11 @@ interface AgoraClientProps {
 
 const AgoraClient: FC<AgoraClientProps> = ({ channelName, token }) => {
   const appId: string = "1369151da2df4f33bdd842b8c0797085"; // Replace with your actual Agora App ID
-  const incomingCallSound = new Audio("/public/teams_default.mp3");
   const localAudioTrackRef = useRef<IMicrophoneAudioTrack | null>(null);
 
   useEffect(() => {
+    const incomingCallSound = new Audio("/public/teams_default.mp3");
+
     const handleIncomingCall = (data: {
       channelName: string;
       token: string;
@@ -34,7 +35,7 @@ const AgoraClient: FC<AgoraClientProps> = ({ channelName, token }) => {
     return () => {
       socket.off("incomingCall", handleIncomingCall);
     };
-  }, [incomingCallSound]);
+  }, []);
 
   useEffect(() => {
     const client: IAgoraRTCClient = AgoraRTC.createClient({
