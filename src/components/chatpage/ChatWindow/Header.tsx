@@ -11,7 +11,6 @@ import {
   TextField,
   List,
   ListItem,
-  ListItemIcon,
   ListItemText,
   ListItemAvatar,
 } from "@mui/material";
@@ -19,7 +18,7 @@ import FolderIcon from "@mui/icons-material/Folder";
 import GroupAddIcon from "@mui/icons-material/GroupAdd";
 import PersonAddAltIcon from "@mui/icons-material/PersonAddAlt";
 import CloseIcon from "@mui/icons-material/Close";
-import { Message, Group, User } from "./messagetypes";
+import { User } from "./messagetypes";
 import GroupIcon from "@mui/icons-material/Group";
 import VideocamIcon from "@mui/icons-material/Videocam";
 import { useUser } from "../../context/UserContext";
@@ -30,10 +29,7 @@ import { AgoraRTCProvider } from "agora-rtc-react";
 import CallIcon from "@mui/icons-material/Call";
 import CallPopup from "../../VoiceCall/CallPopup";
 import ActionModal from "./ActionModal";
-import AgoraRTC, {
-  IAgoraRTCClient,
-  IMicrophoneAudioTrack,
-} from "agora-rtc-sdk-ng";
+import AgoraRTC, { IMicrophoneAudioTrack } from "agora-rtc-sdk-ng";
 // import { IconButton } from '@mui/material';
 import CallEndIcon from "@mui/icons-material/CallEnd";
 
@@ -46,16 +42,12 @@ interface HeaderProps {
   Title: string | null;
 }
 
-const Header: React.FC<HeaderProps> = ({
-  Title,
-  selectedUser,
-  onGroupCreate,
-}) => {
+const Header: React.FC<HeaderProps> = ({ selectedUser, onGroupCreate }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [query, setQuery] = useState<string>("");
   const [suggestions, setSuggestions] = useState<User[]>([]);
   const [selectedUserIDs, setSelectedUserIDs] = useState<number[]>([]);
-  const [groupDetails, setGroupDetails] = useState();
+  const [, setGroupDetails] = useState();
   const [groupMembers, setGroupMembers] = useState<User[]>([]);
   const [hoveredUserId, setHoveredUserId] = useState<number | null>(null);
   const [openModal, setOpenModal] = useState(false);
@@ -67,9 +59,7 @@ const Header: React.FC<HeaderProps> = ({
   });
 
   const {
-    groups,
     setGroups,
-    activeGroup,
     setActiveGroup,
     setActiveUser,
     setselectActiveUser,
@@ -83,14 +73,11 @@ const Header: React.FC<HeaderProps> = ({
   const [incomingCall, setIncomingCall] = useState<string | null>(null);
   const [callAccepted, setCallAccepted] = useState<boolean>(false);
   const localAudioTrackRef = useRef<IMicrophoneAudioTrack | null>(null);
-  const [isCallPopupVisible, setIsCallPopupVisible] = useState(false);
-  const [searchParams] = useSearchParams();
-  const type = searchParams.get("id");
-  const [callerId, setCallerId] = useState<string | null>(type);
-  const [caller, setCaller] = useState<User | null>(null);
+  const [, setIsCallPopupVisible] = useState(false);
+  const [caller] = useState<User | null>(null);
   const [callDuration, setCallDuration] = useState<number>(0); // Call duration in seconds
   const callTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const [callData, setCallData] = useState<{
+  const [, setCallData] = useState<{
     CallerID: number;
     ReceiverID: number | undefined;
     StartTime: Date;
@@ -306,9 +293,6 @@ const Header: React.FC<HeaderProps> = ({
 
     const loggedInUserId = user?.userdata?.UserID || null;
 
-    // Ensure the logged-in user is added to the group
-    const userIDs = [...selectedUserIDs, loggedInUserId];
-
     const namesArray = query
       .split(",")
       .map((name) => name.trim())
@@ -349,7 +333,7 @@ const Header: React.FC<HeaderProps> = ({
     }
   };
 
-  const { UserID, Username, GroupName, ProfilePicture, GroupID } = selectedUser;
+  const { GroupID } = selectedUser;
   const namesArray = query
     .split(",")
     .map((name) => name.trim())
@@ -452,13 +436,6 @@ const Header: React.FC<HeaderProps> = ({
   console.log("userid", user?.userdata?.UserID);
   console.log("selectedUser", selectedUser);
   console.log(caller);
-  function generate(element: React.ReactElement) {
-    return [0, 1, 2].map((value) =>
-      React.cloneElement(element, {
-        key: value,
-      })
-    );
-  }
 
   const handleDelete = async (userId: number, groupId: number) => {
     try {
@@ -494,7 +471,7 @@ const Header: React.FC<HeaderProps> = ({
     });
     setOpenModal(true);
   };
-  const [secondary, setSecondary] = React.useState(false);
+  const [secondary] = React.useState(false);
   console.log("userDetails", selectedUser);
   console.log("userDetails", headerTitle);
   return (
