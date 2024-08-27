@@ -6,7 +6,6 @@ import ChatComponent from "./RenderChatComponent";
 import { Message, User } from "./messagetypes";
 import axios from "axios";
 import { useUser } from "../../context/UserContext";
-import _ from "lodash"; // Import lodash for debouncing
 
 interface ChatAreaProps {
   userDetails: User; // Adjust type if needed
@@ -67,7 +66,7 @@ const ChatArea: React.FC<ChatAreaProps> = ({ userDetails }) => {
     };
 
     fetchMessages();
-  }, [userDetails?.GroupID, activeUser, activeGroup]);
+  }, [userDetails?.GroupID, activeUser, activeGroup, setHeaderTitle]);
 
   const handleGroupCreate = (newGroup: User) => {
     setSelectedUser({
@@ -84,7 +83,7 @@ const ChatArea: React.FC<ChatAreaProps> = ({ userDetails }) => {
       setHeaderTitle(userDetails.GroupName || userDetails.Username);
       setMessageList([]);
     }
-  }, [userDetails]);
+  }, [userDetails, setHeaderTitle]);
 
   return (
     <>

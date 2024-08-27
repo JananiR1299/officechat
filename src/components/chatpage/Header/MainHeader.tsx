@@ -10,12 +10,11 @@ import MenuItem from "@mui/material/MenuItem";
 import Menu from "@mui/material/Menu";
 import MenuIcon from "@mui/icons-material/Menu";
 import SearchIcon from "@mui/icons-material/Search";
-import CloseIcon from "@mui/icons-material/Close";
 import AccountCircle from "@mui/icons-material/AccountCircle";
 import Suggestions from "./Suggestions";
 import MoreIcon from "@mui/icons-material/MoreVert";
 import "./MainHeader.css";
-import { Message, Group, User } from "../ChatWindow/messagetypes";
+import { User } from "../ChatWindow/messagetypes";
 import { useUser } from "../../context/UserContext";
 import axios from "axios";
 
@@ -61,7 +60,6 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 function Header() {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const {
-    selectedUserId,
     user,
     setActiveGroup,
     activeUser,
@@ -226,35 +224,6 @@ function Header() {
       </MenuItem>
     </Menu>
   );
-
-  const handleSendMessage = async (message: string) => {
-    try {
-      const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}messages`,
-        {
-          userId: activeUser,
-          message,
-        }
-      );
-
-      if (response.status === 200) {
-        console.log("Message sent successfully.");
-
-        // If the active user ID has changed, log it
-        if (selectActiveUser && activeUser !== selectActiveUser.UserID) {
-          console.log("Active user updated:", selectActiveUser);
-          setActiveUser(selectActiveUser.UserID);
-        }
-      } else {
-        console.error(
-          "Failed to send message, response status:",
-          response.status
-        );
-      }
-    } catch (error) {
-      console.error("Error sending message:", error);
-    }
-  };
 
   useEffect(() => {
     console.log("selectActiveUser", selectActiveUser);

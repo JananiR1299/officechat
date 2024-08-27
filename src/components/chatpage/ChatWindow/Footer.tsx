@@ -18,7 +18,6 @@ import {
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import SendIcon from "@mui/icons-material/Send";
 import CloseIcon from "@mui/icons-material/Close";
-import axios from "axios";
 import { useUser } from "../../context/UserContext";
 import io, { Socket } from "socket.io-client";
 import { Message } from "./messagetypes";

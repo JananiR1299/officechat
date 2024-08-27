@@ -8,10 +8,10 @@
 // } from "agora-rtc-sdk-ng";
 // import "./main.css";
 
-const APP_ID = "1369151da2df4f33bdd842b8c0797085";
-const TOKEN =
-  "007eJxTYBDVPODz9pbh9/THJl9C/JTe5F10bldtVj72aFPUiYtGH24qMFimpaaaWpoYGZkbpplYphknJRlZWJonp1kmmiWZpppYvKo4mtYQyMhw6vR/JkYGCATxWRh8EzPzGBgABOEi7g==";
-const CHANNEL = "Main";
+// const APP_ID = "1369151da2df4f33bdd842b8c0797085";
+// const TOKEN =
+//   "007eJxTYBDVPODz9pbh9/THJl9C/JTe5F10bldtVj72aFPUiYtGH24qMFimpaaaWpoYGZkbpplYphknJRlZWJonp1kmmiWZpppYvKo4mtYQyMhw6vR/JkYGCATxWRh8EzPzGBgABOEi7g==";
+// const CHANNEL = "Main";
 
 // const VideoChat: React.FC = () => {
 //   const navigate = useNavigate();

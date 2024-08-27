@@ -11,8 +11,6 @@ import {
   CssBaseline,
   Divider,
   Icon,
-  TextField,
-  Button,
   IconButton,
 } from "@mui/material";
 import "./SideMenu.css";
@@ -82,7 +80,7 @@ const ActivityContent: React.FC<ActivityContentProps> = ({
             <ChatIcon sx={{ fontSize: "20px" }} />
             &nbsp;
             <a
-              href="#"
+              href="javascript:void(0)"
               style={{
                 color: "#006FFC",
                 cursor: "no-drop",
@@ -206,11 +204,6 @@ const menuItems = [
   { text: "Teams", component: "teams", icon: <FaUsers /> },
 ];
 console.log("menu items :", menuItems);
-
-interface GroupChat {
-  id: number;
-  name: string;
-}
 
 const drawerWidth = 80;
 

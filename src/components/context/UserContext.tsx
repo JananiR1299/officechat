@@ -5,7 +5,6 @@ import React, {
   ReactNode,
   useEffect,
 } from "react";
-import axios from "axios";
 import { User } from "../chatpage/ChatWindow/messagetypes";
 
 interface UserDetails {
@@ -63,7 +62,13 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
     // Retrieve user data from localStorage on initial load
     const savedUser = localStorage.getItem("user");
     if (savedUser) {
-      setUser(JSON.parse(savedUser));
+      try {
+        setUser(JSON.parse(savedUser));
+      } catch (error) {
+        console.error("Failed to parse user data:", error);
+        // Handle the error, e.g., clear the invalid data from localStorage
+        localStorage.removeItem("user");
+      }
     }
   }, []);
 
