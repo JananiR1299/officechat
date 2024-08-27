@@ -81,7 +81,14 @@ const ContactList: React.FC<ContactListProps> = ({ onSelectUser }: any) => {
     return () => {
       socket.off("userStatusUpdate");
     };
-  }, [setGroups, setContact]);
+  }, [
+    setGroups,
+    setContact,
+    onSelectUser,
+    setActiveUser,
+    setSelectedUserId,
+    user?.userdata?.UserID,
+  ]);
 
   useEffect(() => {
     if (user) {

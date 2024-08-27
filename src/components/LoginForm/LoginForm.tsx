@@ -245,7 +245,7 @@ const LoginForm: React.FC = () => {
               )}
             </div>
             <a
-              href="#"
+              href="javascript:void(0);"
               style={{
                 color: "#006FFC",
                 marginLeft: "200px",
@@ -269,7 +269,7 @@ const LoginForm: React.FC = () => {
               <span style={{ color: "#75767B" }}>
                 Don't have an account?{" "}
                 <a
-                  href="#"
+                  href="javascript:void(0);"
                   style={{ color: "#006FFC", cursor: "no-drop" }}
                   onClick={(e) => e.preventDefault()}
                 >

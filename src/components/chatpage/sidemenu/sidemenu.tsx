@@ -80,7 +80,7 @@ const ActivityContent: React.FC<ActivityContentProps> = ({
             <ChatIcon sx={{ fontSize: "20px" }} />
             &nbsp;
             <a
-              href="#"
+              href="javascript:void(0);"
               style={{
                 color: "#006FFC",
                 cursor: "no-drop",
