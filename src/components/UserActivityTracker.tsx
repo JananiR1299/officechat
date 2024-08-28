@@ -8,7 +8,7 @@ const UserActivityTracker: React.FC = () => {
   useEffect(() => {
     if (user) {
       const interval = setInterval(() => {
-        axios.get(`${process.env.REACT_APP_API_URL}getActiveUser`, {
+        axios.get(`${process.env.REACT_APP_API_URL}/api/getActiveUser`, {
           //   userId: user?.userdata?.UserID,
           //   isActive: true,
         });
