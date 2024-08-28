@@ -170,7 +170,7 @@ const LoginForm: React.FC = () => {
   const handleLogin = async () => {
     try {
       const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}api/auth/login`,
+        `${process.env.REACT_APP_API_URL}/api/auth/login`,
         {
           Email: email,
           PasswordHash: password,
