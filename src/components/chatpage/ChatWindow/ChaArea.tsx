@@ -44,18 +44,18 @@ const ChatArea: React.FC<ChatAreaProps> = ({ userDetails }) => {
             response.data.error || "Empty data"
           );
           // Delay the display of 'No conversation' message by 3 seconds
-          setTimeout(() => {
-            setNoConversation(true);
-            setLoading(false); // Stop loading
-          }, 1000);
+          // setTimeout(() => {
+          setNoConversation(true);
+          setLoading(false); // Stop loading
+          // }, 1000);
         } else {
           // setMessageList(response.data);
           // Delay the display of messages by 3 seconds
-          setTimeout(() => {
-            setHeaderTitle(response.data.GroupName || response.data.Username);
-            setMessageList(response.data);
-            setLoading(false); // Stop loading after messages are set
-          }, 1000);
+          // setTimeout(() => {
+          setHeaderTitle(response.data.GroupName || response.data.Username);
+          setMessageList(response.data);
+          setLoading(false); // Stop loading after messages are set
+          // }, 1000);
         }
       } catch (error) {
         console.error("Error fetching messages:", error);
@@ -84,7 +84,6 @@ const ChatArea: React.FC<ChatAreaProps> = ({ userDetails }) => {
       setMessageList([]);
     }
   }, [userDetails, setHeaderTitle]);
-
   return (
     <>
       <Box sx={{ display: "flex", flexDirection: "column", height: "80vh" }}>

@@ -88,12 +88,15 @@ const AgoraClient: FC<AgoraClientProps> = ({ channelName, token }) => {
 
     return () => {
       const leaveChannel = async () => {
-        await client.leave();
-        client.remoteUsers.forEach((user: IAgoraRTCRemoteUser) => {
-          if (user.audioTrack) user.audioTrack.stop();
-        });
+        if (client) {
+          await client.leave();
+          client.remoteUsers.forEach((user: IAgoraRTCRemoteUser) => {
+            if (user.audioTrack) user.audioTrack.stop();
+          });
+        }
         if (localAudioTrackRef.current) {
           localAudioTrackRef.current.stop();
+          localAudioTrackRef.current.close(); // Close to release the resource
           localAudioTrackRef.current = null;
         }
       };

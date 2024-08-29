@@ -20,19 +20,20 @@ import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import ContactList from "../chatlist/ContactList";
 import ChatArea from "../ChatWindow/ChaArea";
 import { useUser } from "../../context/UserContext";
+import { User } from "../ChatWindow/messagetypes";
 
-interface Item {
-  details: string;
-  id: number | null | undefined;
-  ProfilePicture: string | undefined;
-  Username: string;
-  UserID: number | null;
-  GroupID: number | null;
-}
+// interface Item {
+//   details: string;
+//   id: number | null | undefined;
+//   ProfilePicture: string | undefined;
+//   Username: string;
+//   UserID: number | null;
+//   GroupID: number | null;
+// }
 
 interface ActivityContentProps {
-  selectedItem: Item;
-  onSelect: (item: Item) => void;
+  selectedItem: User;
+  onSelect: (item: User) => void;
 }
 
 const ActivityContent: React.FC<ActivityContentProps> = ({
@@ -134,7 +135,7 @@ const ActivityContent: React.FC<ActivityContentProps> = ({
 };
 
 interface ChatContentProps {
-  selectedUser: Item | null;
+  selectedUser: User | null;
 }
 
 const ChatContent: React.FC<ChatContentProps> = ({ selectedUser }: any) => {
@@ -149,33 +150,47 @@ const TeamsContent = ({
   selectedItem,
   onSelect,
 }: {
-  selectedItem: Item | null;
-  onSelect: (item: Item) => void;
+  selectedItem: User | null;
+  onSelect: (item: User) => void;
 }) => {
-  const contacts: Item[] = [
+  const contacts: User[] = [
     {
-      id: 1,
+      // id: 1,
       Username: "Contact 1",
-      details: "Details about Contact 1",
+      // details: "Details about Contact 1",
       ProfilePicture: undefined,
       UserID: null,
       GroupID: null,
+      name: undefined,
+      GroupName: "",
+      isGroupChat: false,
+      isActive: false,
+      Item: undefined,
     },
     {
-      id: 2,
+      // id: 2,
       Username: "Contact 2",
-      details: "Details about Contact 2",
+      // details: "Details about Contact 2",
       ProfilePicture: undefined,
       UserID: null,
       GroupID: null,
+      name: undefined,
+      GroupName: "",
+      isGroupChat: false,
+      isActive: false,
+      Item: undefined,
     },
     {
-      id: 3,
       Username: "Contact 3",
-      details: "Details about Contact 3",
+      // details: "Details about Contact 3",
       ProfilePicture: undefined,
       UserID: null,
       GroupID: null,
+      name: undefined,
+      GroupName: "",
+      isGroupChat: false,
+      isActive: false,
+      Item: undefined,
     },
   ];
 
@@ -185,7 +200,7 @@ const TeamsContent = ({
         <Typography variant="h5">Teams</Typography>
         <List>
           {contacts.map((contact) => (
-            <ListItem button key={contact.id} onClick={() => onSelect(contact)}>
+            <ListItem onClick={() => onSelect(contact)}>
               <ListItemText primary={contact.Username} />
             </ListItem>
           ))}
@@ -194,7 +209,7 @@ const TeamsContent = ({
       {selectedItem && (
         <Box sx={{ flex: 2, ml: 3 }}>
           <Typography variant="h6">{selectedItem.Username}</Typography>
-          <Typography>{selectedItem.details}</Typography>
+          <Typography>{selectedItem.Username}</Typography>
         </Box>
       )}
     </Box>
@@ -206,22 +221,23 @@ const menuItems = [
   { text: "Chat", component: "chat", icon: <FaComments /> },
   { text: "Teams", component: "teams", icon: <FaUsers /> },
 ];
-console.log("menu items :", menuItems);
 
 const drawerWidth = 80;
 
 const SideMenu: React.FC = () => {
-  const [selectedItem, setSelectedItem] = useState<Item | null>(null);
+  const [selectedItem, setSelectedItem] = useState<User | null>(null);
   const [selectedComponent, setSelectedComponent] =
     useState<string>("activity");
-  const [selectedUser, setSelectedUser] = useState<Item | null>(null);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const { setActiveGroup, setActiveUser } = useUser();
 
-  const handleSelectItem = (item: Item) => {
+  const handleSelectItem = (item: User) => {
     setSelectedItem(item);
   };
 
   const handleSelectUser = (user: any) => {
+    console.log(user);
+    // alert(user);
     if (user.GroupID) {
       // If the item has GroupID, it's a group
       setSelectedUser(user);
@@ -236,6 +252,7 @@ const SideMenu: React.FC = () => {
   };
 
   const handleMenuItemClick = (component: string) => {
+    // alert(component);
     setSelectedItem(null);
     setSelectedComponent(component);
   };
@@ -251,6 +268,7 @@ const SideMenu: React.FC = () => {
   // };
 
   const renderContent = () => {
+    console.log("selectedUser", selectedUser);
     switch (selectedComponent) {
       case "activity":
         return (

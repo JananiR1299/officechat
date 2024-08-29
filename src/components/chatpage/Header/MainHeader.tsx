@@ -157,7 +157,7 @@ function Header() {
     console.log("Logout", user?.userdata?.UserID);
 
     axios
-      .post(`${process.env.REACT_APP_API_URL}auth/logout`, {
+      .post(`${process.env.REACT_APP_API_URL}/api/auth/logout`, {
         userId: user?.userdata?.UserID, // Pass the user ID in the request body
       }) // Replace with your actual logout API endpoint
       .then(() => {

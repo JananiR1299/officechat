@@ -51,6 +51,7 @@ const Header: React.FC<HeaderProps> = ({ selectedUser, onGroupCreate }) => {
   const [groupMembers, setGroupMembers] = useState<User[]>([]);
   const [hoveredUserId, setHoveredUserId] = useState<number | null>(null);
   const [openModal, setOpenModal] = useState(false);
+  const [secondary] = useState(false);
   const [modalContent, setModalContent] = useState({
     title: "",
     description: "",
@@ -74,7 +75,6 @@ const Header: React.FC<HeaderProps> = ({ selectedUser, onGroupCreate }) => {
   const [callAccepted, setCallAccepted] = useState<boolean>(false);
   const localAudioTrackRef = useRef<IMicrophoneAudioTrack | null>(null);
   const [, setIsCallPopupVisible] = useState(false);
-  const [caller] = useState<User | null>(null);
   const [callDuration, setCallDuration] = useState<number>(0); // Call duration in seconds
   const callTimerRef = useRef<NodeJS.Timeout | null>(null);
   const [, setCallData] = useState<{
@@ -156,7 +156,6 @@ const Header: React.FC<HeaderProps> = ({ selectedUser, onGroupCreate }) => {
   };
 
   const startCall = async () => {
-    console.log("selecteduser", selectedUser);
     if (!selectedUser) return; // Handle case where selectedUser might be null
 
     const generatedChannelName = "testChannel";
@@ -432,10 +431,6 @@ const Header: React.FC<HeaderProps> = ({ selectedUser, onGroupCreate }) => {
 
   const open = Boolean(anchorEl);
   const id = open ? "simple-popover" : undefined;
-  console.log("username", user?.userdata?.Username);
-  console.log("userid", user?.userdata?.UserID);
-  console.log("selectedUser", selectedUser);
-  console.log(caller);
 
   const handleDelete = async (userId: number, groupId: number) => {
     try {
@@ -471,9 +466,7 @@ const Header: React.FC<HeaderProps> = ({ selectedUser, onGroupCreate }) => {
     });
     setOpenModal(true);
   };
-  const [secondary] = React.useState(false);
-  console.log("userDetails", selectedUser);
-  console.log("userDetails", headerTitle);
+
   return (
     <>
       <Box sx={{ flexGrow: 1 }}>

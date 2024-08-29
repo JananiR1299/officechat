@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import {
   List,
@@ -29,7 +29,6 @@ interface ContactListProps {
 const socket = io(process.env.SOCKET_URL);
 
 const ContactList: React.FC<ContactListProps> = ({ onSelectUser }: any) => {
-  // console.log(onSelectUser);
   // const [Group, setGroup] = useState();
   const { user, groups, setGroups } = useUser();
   const [, setError] = useState<string | null>(null);
@@ -40,14 +39,33 @@ const ContactList: React.FC<ContactListProps> = ({ onSelectUser }: any) => {
     setActiveGroup,
     activeUser,
     setActiveUser,
+    // selectedUserId,
     setSelectedUserId,
     Contact,
     setContact,
   } = useUser();
 
+  onSelectUser = useCallback(
+    (user: any) => {
+      // handle user selection
+      console.log(user);
+      setActiveUser(user);
+    },
+    [setActiveUser]
+  );
+
+  const handleSetActiveUser = useCallback(
+    (userId: number | null) => {
+      setActiveUser(userId);
+
+      // Any other logic that should be memoized
+      setSelectedUserId(userId);
+    },
+    [setActiveUser, setSelectedUserId] // Dependencies
+  );
   useEffect(() => {
     console.log("groupsgroups", `${process.env.REACT_APP_API_URL}`);
-
+    // if (selectedUserId) {
     axios
       .get(
         `${process.env.REACT_APP_API_URL}/api/users/${user?.userdata?.UserID}`
@@ -60,17 +78,20 @@ const ContactList: React.FC<ContactListProps> = ({ onSelectUser }: any) => {
         if (response.data.length > 0) {
           // Automatically select the first user
           const firstUser = response.data[0];
-          setActiveUser(firstUser.UserID);
-          setSelectedUserId(firstUser.UserID); // Set first user as active
-          onSelectUser(firstUser); // Pass the first user to parent component
+          handleSetActiveUser(firstUser.UserID); // Set first user as active
+          // onSelectUser(firstUser); // Pass the first user to parent component
         }
       })
       .catch((error) => {
         setError(error.message);
       });
+    // }
+  }, [user?.userdata?.UserID, setContact, onSelectUser, handleSetActiveUser]);
 
-    // for groups
+  // }, [user?.userdata?.UserID, setContact, onSelectUser, handleSetActiveUser]);
+  // for groups
 
+  useEffect(() => {
     axios
       .get(`${process.env.REACT_APP_API_URL}/api/grouplist`)
       .then((response) => {
@@ -87,9 +108,8 @@ const ContactList: React.FC<ContactListProps> = ({ onSelectUser }: any) => {
     setGroups,
     setContact,
     onSelectUser,
-    setActiveUser,
-    setSelectedUserId,
-    user?.userdata?.UserID,
+    handleSetActiveUser,
+    // user?.userdata?.UserID,
   ]);
 
   useEffect(() => {
@@ -108,8 +128,10 @@ const ContactList: React.FC<ContactListProps> = ({ onSelectUser }: any) => {
     user,
     onSelectUser,
     setActiveUser,
+
     setSelectedUserId,
-    user?.userdata?.UserID,
+    setLoggedInUsers,
+    // user?.userdata?.UserID,
   ]);
   useEffect(() => {
     // console.log(loggedInUsers);
@@ -117,7 +139,9 @@ const ContactList: React.FC<ContactListProps> = ({ onSelectUser }: any) => {
       ...item,
       isActive: loggedInUsers.includes(item.UserID) ? true : false,
     }));
-    setContact(updatedArray);
+    if (JSON.stringify(updatedArray) !== JSON.stringify(Contact)) {
+      setContact(updatedArray);
+    }
   }, [loggedInUsers, Contact, setContact]);
 
   const handleContactClick = (userid: number) => {

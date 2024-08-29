@@ -4,6 +4,7 @@ import React, {
   useContext,
   ReactNode,
   useEffect,
+  useCallback,
 } from "react";
 import { User } from "../chatpage/ChatWindow/messagetypes";
 
@@ -53,11 +54,12 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
   const [headerTitle, setHeaderTitle] = useState<string>("");
   const [Contact, setContact] = useState<User[]>([]);
   //const [Contact, setContact] = useState<User[]>([]);
-  const logout = () => {
+  // Memoized logout function
+  const logout = useCallback(() => {
     setUser(null);
     // Optionally, perform additional cleanup (e.g., clear tokens)
     // e.g., localStorage.removeItem('userToken');
-  };
+  }, []);
   useEffect(() => {
     // Retrieve user data from localStorage on initial load
     const savedUser = localStorage.getItem("user");
