@@ -42,12 +42,6 @@
     "eject": "react-scripts eject",
     "copy:config:dist": "shx cp staticwebapp.config.json build/"
   },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
   "browserslist": {
     "production": [
       ">0.2%",

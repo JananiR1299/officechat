@@ -236,8 +236,6 @@ const SideMenu: React.FC = () => {
   };
 
   const handleSelectUser = (user: any) => {
-    console.log(user);
-    // alert(user);
     if (user.GroupID) {
       // If the item has GroupID, it's a group
       setSelectedUser(user);
@@ -252,7 +250,7 @@ const SideMenu: React.FC = () => {
   };
 
   const handleMenuItemClick = (component: string) => {
-    // alert(component);
+    alert(component);
     setSelectedItem(null);
     setSelectedComponent(component);
   };
@@ -268,7 +266,7 @@ const SideMenu: React.FC = () => {
   // };
 
   const renderContent = () => {
-    console.log("selectedUser", selectedUser);
+    console.log("selectedUser", setActiveUser);
     switch (selectedComponent) {
       case "activity":
         return (
