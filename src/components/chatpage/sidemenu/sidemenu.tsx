@@ -250,7 +250,6 @@ const SideMenu: React.FC = () => {
   };
 
   const handleMenuItemClick = (component: string) => {
-    alert(component);
     setSelectedItem(null);
     setSelectedComponent(component);
   };

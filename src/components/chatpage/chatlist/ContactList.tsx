@@ -122,11 +122,6 @@ const ContactList: React.FC<ContactListProps> = ({ onSelectUser }: any) => {
       return () => clearInterval(interval); // Clean up on unmount
     }
   }, [
-    user,
-    onSelectUser,
-    setActiveUser,
-
-    setSelectedUserId,
     setLoggedInUsers,
     // user?.userdata?.UserID,
   ]);
