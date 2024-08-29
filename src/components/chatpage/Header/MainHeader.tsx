@@ -84,7 +84,7 @@ function Header() {
   const fetchSearchSuggestions = async (searchQuery: string) => {
     try {
       const response = await axios.get(
-        `${process.env.REACT_APP_API_URL}usernamesugggestions`,
+        `${process.env.REACT_APP_API_URL}/api/usernamesugggestions`,
         {
           params: { query: searchQuery },
         }

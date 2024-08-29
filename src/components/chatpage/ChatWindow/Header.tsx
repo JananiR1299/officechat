@@ -188,7 +188,7 @@ const Header: React.FC<HeaderProps> = ({ selectedUser, onGroupCreate }) => {
       setCallData(callData);
 
       const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}postCall`,
+        `${process.env.REACT_APP_API_URL}/api/postCall`,
         callData,
         {
           headers: {
@@ -240,7 +240,7 @@ const Header: React.FC<HeaderProps> = ({ selectedUser, onGroupCreate }) => {
     setAnchorEl(event.currentTarget);
     try {
       const response = await axios.get(
-        `${process.env.REACT_APP_API_URL}groupmembers/${selectedUser?.GroupID}`
+        `${process.env.REACT_APP_API_URL}/api/groupmembers/${selectedUser?.GroupID}`
       );
       setGroupMembers(response.data);
     } catch (error) {
@@ -261,7 +261,7 @@ const Header: React.FC<HeaderProps> = ({ selectedUser, onGroupCreate }) => {
   const fetchSuggestions = async (searchQuery) => {
     try {
       const response = await axios.get(
-        `${process.env.REACT_APP_API_URL}usernamesugggestions`,
+        `${process.env.REACT_APP_API_URL}/api/usernamesugggestions`,
         {
           params: { query: searchQuery },
         }
@@ -303,7 +303,7 @@ const Header: React.FC<HeaderProps> = ({ selectedUser, onGroupCreate }) => {
 
     try {
       const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}creategroup`,
+        `${process.env.REACT_APP_API_URL}/api/creategroup`,
         {
           GroupName: groupname,
           Username: [(selectedUser as User).Username, ...namesArray],
@@ -341,7 +341,7 @@ const Header: React.FC<HeaderProps> = ({ selectedUser, onGroupCreate }) => {
   const handleAddUser = async () => {
     try {
       const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}addUsers?`,
+        `${process.env.REACT_APP_API_URL}/api/addUsers?`,
         {
           // Email: groupEmail,
           GroupID: GroupID,
@@ -388,7 +388,7 @@ const Header: React.FC<HeaderProps> = ({ selectedUser, onGroupCreate }) => {
 
   //     try {
   //       // Make the API call to store the call data
-  //       const response = await axios.post(`${process.env.REACT_APP_API_URL}postCall`, {
+  //       const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/postCall`, {
   //         CallerID: callerId,
   //         ReceiverID: receiverId,
   //         GroupID: groupId,
@@ -441,7 +441,7 @@ const Header: React.FC<HeaderProps> = ({ selectedUser, onGroupCreate }) => {
     try {
       // Make API call to delete user from the group
       await axios.delete(
-        `${process.env.REACT_APP_API_URL}groups/${groupId}/members/${userId}`
+        `${process.env.REACT_APP_API_URL}/api/groups/${groupId}/members/${userId}`
       );
 
       // Update local state to remove the deleted user

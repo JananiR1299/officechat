@@ -28,11 +28,11 @@ const ChatArea: React.FC<ChatAreaProps> = ({ userDetails }) => {
         let response;
         if (userDetails?.GroupID) {
           response = await axios.get(
-            `${process.env.REACT_APP_API_URL}groupmessages?groupid=${userDetails.GroupID}`
+            `${process.env.REACT_APP_API_URL}/api/groupmessages?groupid=${userDetails.GroupID}`
           );
         } else if (activeUser) {
           response = await axios.get(
-            `${process.env.REACT_APP_API_URL}messages/${activeUser}`
+            `${process.env.REACT_APP_API_URL}/api/messages/${activeUser}`
           );
         } else {
           return;

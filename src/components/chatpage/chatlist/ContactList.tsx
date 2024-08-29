@@ -49,7 +49,9 @@ const ContactList: React.FC<ContactListProps> = ({ onSelectUser }: any) => {
     console.log("groupsgroups", `${process.env.REACT_APP_API_URL}`);
 
     axios
-      .get(`${process.env.REACT_APP_API_URL}users/${user?.userdata?.UserID}`)
+      .get(
+        `${process.env.REACT_APP_API_URL}/api/users/${user?.userdata?.UserID}`
+      )
       .then((response) => {
         const users = response.data;
         console.log("contact", users);
@@ -70,7 +72,7 @@ const ContactList: React.FC<ContactListProps> = ({ onSelectUser }: any) => {
     // for groups
 
     axios
-      .get(`${process.env.REACT_APP_API_URL}grouplist`)
+      .get(`${process.env.REACT_APP_API_URL}/api/grouplist`)
       .then((response) => {
         setGroups(response.data);
       })
@@ -94,7 +96,7 @@ const ContactList: React.FC<ContactListProps> = ({ onSelectUser }: any) => {
     if (user) {
       const interval = setInterval(async () => {
         const response = await axios.get(
-          `${process.env.REACT_APP_API_URL}getActiveUser`
+          `${process.env.REACT_APP_API_URL}/api/getActiveUser`
         );
 
         setLoggedInUsers(response.data);

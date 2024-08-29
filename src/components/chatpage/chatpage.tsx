@@ -15,7 +15,7 @@ const Chatpage: React.FC = () => {
     const handleBeforeUnload = (event) => {
       /// alert("HI");
       // Send a request to the server to remove the user from the loggedInUsers array
-      axios.post(`${process.env.REACT_APP_API_URL}auth/logout`, {
+      axios.post(`${process.env.REACT_APP_API_URL}/api/auth/logout`, {
         userId: user?.userdata?.UserID,
       });
       event.preventDefault();

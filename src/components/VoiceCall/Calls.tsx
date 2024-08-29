@@ -119,7 +119,7 @@ const AgoraVoiceChat: React.FC = () => {
         // Create a call entry in the database
         const startTime = new Date().toISOString();
         const response = await axios.post(
-          `${process.env.REACT_APP_API_URL}calls`,
+          `${process.env.REACT_APP_API_URL}/api/calls`,
           {
             CallerID: rtcUid,
             ReceiverID: null,
@@ -166,7 +166,7 @@ const AgoraVoiceChat: React.FC = () => {
     // Update the call entry in the database
     if (callID) {
       const endTime = new Date().toISOString();
-      await axios.put(`${process.env.REACT_APP_API_URL}calls/${callID}`, {
+      await axios.put(`${process.env.REACT_APP_API_URL}/api/calls/${callID}`, {
         EndTime: endTime,
       });
       setCallID(null); // Reset the call ID
