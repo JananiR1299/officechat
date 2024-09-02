@@ -27,6 +27,7 @@ interface ContactListProps {
 }
 
 const socket = io(process.env.SOCKET_URL);
+console.log(socket);
 
 const ContactList: React.FC<ContactListProps> = ({ onSelectUser }: any) => {
   // const [Group, setGroup] = useState();
@@ -64,7 +65,7 @@ const ContactList: React.FC<ContactListProps> = ({ onSelectUser }: any) => {
   //   [setActiveUser, setSelectedUserId] // Dependencies
   // );
   useEffect(() => {
-    console.log("groupsgroups", `${process.env.REACT_APP_API_URL}`);
+    console.log("groupsgroups", groups);
     // if (selectedUserId) {
     axios
       .get(
@@ -98,6 +99,7 @@ const ContactList: React.FC<ContactListProps> = ({ onSelectUser }: any) => {
     axios
       .get(`${process.env.REACT_APP_API_URL}/api/grouplist`)
       .then((response) => {
+        // console.log("Goruplist", response.data);
         setGroups(response.data);
       })
       .catch((error) => {
@@ -171,87 +173,99 @@ const ContactList: React.FC<ContactListProps> = ({ onSelectUser }: any) => {
       >
         Chat
       </Typography>
-      <List
-        sx={{
-          flexGrow: 1,
-          overflow: "auto",
-          height: "250px",
-          "&::-webkit-scrollbar": {
-            width: "0",
-            transition: "width 0.3s ease",
-          },
-          "&:hover::-webkit-scrollbar": {
-            width: "6px",
-          },
-          "&::-webkit-scrollbar-thumb": {
-            backgroundColor: "#888",
-            borderRadius: "10px",
-          },
-          "&::-webkit-scrollbar-thumb:hover": {
-            backgroundColor: "#555",
-          },
-        }}
-      >
-        {" "}
-        {/* Allow list to scroll */}
-        {Contact?.map((item) => {
-          // const Status = userStatus.find(
-          //   (Status: any) => Status.UserID === item.UserID
-          // );
+      {Contact && Contact.length > 0 ? (
+        <List
+          sx={{
+            flexGrow: 1,
+            overflow: "auto",
+            height: "250px",
+            "&::-webkit-scrollbar": {
+              width: "0",
+              transition: "width 0.3s ease",
+            },
+            "&:hover::-webkit-scrollbar": {
+              width: "6px",
+            },
+            "&::-webkit-scrollbar-thumb": {
+              backgroundColor: "#888",
+              borderRadius: "10px",
+            },
+            "&::-webkit-scrollbar-thumb:hover": {
+              backgroundColor: "#555",
+            },
+          }}
+        >
+          {" "}
+          {/* Allow list to scroll */}
+          {Contact.map((item) => {
+            // const Status = userStatus.find(
+            //   (Status: any) => Status.UserID === item.UserID
+            // );
 
-          return (
-            <ListItem
-              button
-              key={item.UserID}
-              onClick={() => {
-                onSelectUser(item);
-                handleContactClick(item.UserID);
-              }}
-              sx={{
-                bgcolor: activeUser === item.UserID ? "#999da259" : "inherit", // Change background for active group
-              }}
-            >
-              <ListItemAvatar>
-                <Box sx={{ position: "relative" }}>
-                  <Avatar
-                    alt={item.Username}
-                    src={item.ProfilePicture}
-                    sx={{
-                      width: 45,
-                      height: 45,
-                      borderRadius: "50%",
-                      // border: item.Status ? "2px solid #4caf50" : "none",
-                      position: "relative",
-                    }}
-                  />
-                  {item.isActive && (
-                    <Box
+            return (
+              <ListItem
+                button
+                key={item.UserID}
+                onClick={() => {
+                  onSelectUser(item);
+                  handleContactClick(item.UserID);
+                }}
+                sx={{
+                  bgcolor: activeUser === item.UserID ? "#999da259" : "inherit", // Change background for active group
+                }}
+              >
+                <ListItemAvatar>
+                  <Box sx={{ position: "relative" }}>
+                    <Avatar
+                      alt={item.Username}
+                      src={item.ProfilePicture}
                       sx={{
-                        position: "absolute",
-                        bottom: 0,
-                        right: 7,
-                        width: 16,
-                        height: 16,
+                        width: 45,
+                        height: 45,
                         borderRadius: "50%",
-                        bgcolor: "#4caf50",
-                        border: "2px solid white",
+                        // border: item.Status ? "2px solid #4caf50" : "none",
+                        position: "relative",
                       }}
                     />
-                  )}
-                </Box>
-              </ListItemAvatar>
-              <ListItemText
-                primary={item.Username}
-                secondary={
-                  <Typography variant="body2" color="textSecondary">
-                    Click here to chat
-                  </Typography>
-                }
-              />
-            </ListItem>
-          );
-        })}
-      </List>
+                    {item.isActive && (
+                      <Box
+                        sx={{
+                          position: "absolute",
+                          bottom: 0,
+                          right: 7,
+                          width: 16,
+                          height: 16,
+                          borderRadius: "50%",
+                          bgcolor: "#4caf50",
+                          border: "2px solid white",
+                        }}
+                      />
+                    )}
+                  </Box>
+                </ListItemAvatar>
+                <ListItemText
+                  primary={item.Username}
+                  secondary={
+                    <Typography variant="body2" color="textSecondary">
+                      Click here to chat
+                    </Typography>
+                  }
+                />
+              </ListItem>
+            );
+          })}
+        </List>
+      ) : (
+        <List sx={{ flexGrow: 1, height: "327px", overflow: "auto" }}>
+          <Typography
+            variant="body2"
+            color="textSecondary"
+            style={{ fontStyle: "Italic", textAlign: "center" }}
+          >
+            Search a New User
+          </Typography>
+        </List>
+      )}
       <Typography
         variant="h6"
         sx={{
@@ -264,7 +278,7 @@ const ContactList: React.FC<ContactListProps> = ({ onSelectUser }: any) => {
       >
         Groups
       </Typography>
-      {groups ? (
+      {groups && groups.length > 0 ? (
         <List sx={{ flexGrow: 1, height: "327px", overflow: "auto" }}>
           {" "}
           {/* Allow list to scroll */}
@@ -298,7 +312,15 @@ const ContactList: React.FC<ContactListProps> = ({ onSelectUser }: any) => {
           ))}
         </List>
       ) : (
-        ""
+        <List sx={{ flexGrow: 1, height: "327px", overflow: "auto" }}>
+          <Typography
+            variant="body2"
+            color="textSecondary"
+            style={{ fontStyle: "Italic", textAlign: "center" }}
+          >
+            Create a New group
+          </Typography>
+        </List>
       )}
     </Box>
   );
