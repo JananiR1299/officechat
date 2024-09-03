@@ -13,7 +13,6 @@ import SearchIcon from "@mui/icons-material/Search";
 import AccountCircle from "@mui/icons-material/AccountCircle";
 import Suggestions from "./Suggestions";
 import MoreIcon from "@mui/icons-material/MoreVert";
-import "./MainHeader.css";
 import { User } from "../ChatWindow/messagetypes";
 import { useUser } from "../../context/UserContext";
 import axios from "axios";
@@ -232,7 +231,13 @@ function Header() {
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static">
-        <Toolbar sx={{ marginTop: "1px", color: "white" }}>
+        <Toolbar
+          sx={{
+            marginTop: "1px",
+            color: "white",
+            backgroundColor: "#485872",
+          }}
+        >
           <IconButton
             size="large"
             edge="start"

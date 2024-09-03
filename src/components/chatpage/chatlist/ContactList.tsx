@@ -165,8 +165,10 @@ const ContactList: React.FC<ContactListProps> = ({ onSelectUser }: any) => {
         variant="h6"
         sx={{
           p: 2,
-          bgcolor: "teal",
-          color: "white",
+          bgcolor: "#ebebeb40",
+          color: "black",
+          borderBottom: "2px solid #80808021",
+          fontWeight: "bold",
           fontFamily:
             "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen','Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif",
         }}
@@ -270,8 +272,10 @@ const ContactList: React.FC<ContactListProps> = ({ onSelectUser }: any) => {
         variant="h6"
         sx={{
           p: 2,
-          bgcolor: "teal",
-          color: "white",
+          bgcolor: "#ebebeb40",
+          color: "black",
+          borderBottom: "2px solid #80808021",
+          fontWeight: "bold",
           fontFamily:
             "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen','Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif",
         }}

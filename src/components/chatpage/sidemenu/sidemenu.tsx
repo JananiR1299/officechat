@@ -14,7 +14,6 @@ import {
   Link,
   IconButton,
 } from "@mui/material";
-import "./SideMenu.css";
 import ChatIcon from "@mui/icons-material/Chat";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import ContactList from "../chatlist/ContactList";
@@ -314,13 +313,13 @@ const SideMenu: React.FC = () => {
           },
         }}
       >
-        <Toolbar />
         <Box
           sx={{
             overflow: "auto",
             bgcolor: "#485872",
             color: "white",
             borderTop: "0.5px solid #dbd5d1",
+            height: "calc(100vh - 64px)",
           }}
         >
           <List>
