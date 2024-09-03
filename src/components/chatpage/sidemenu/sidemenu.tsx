@@ -364,7 +364,6 @@ const SideMenu: React.FC = () => {
             width: { sm: `calc(100% - ${drawerWidth}px)` },
           }}
         >
-          <Toolbar />
           {renderContent()}
         </Box>
       </Box>
