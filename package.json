@@ -37,7 +37,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "react-scripts build && npm run copy:config:dist",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "copy:config:dist": "shx cp staticwebapp.config.json build/"
@@ -59,6 +59,7 @@
   "author": "Umakani <umakani310@gmail.com>",
   "license": "MIT",
   "devDependencies": {
-    "typescript": "^5.5.3"
+    "typescript": "^5.5.3",
+    "shx": "^0.3.4"
   }
 }
