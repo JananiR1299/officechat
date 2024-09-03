@@ -2,11 +2,10 @@ import { useEffect } from "react";
 import { io, Socket } from "socket.io-client";
 
 type OnIncomingCall = (data: any) => void;
+const socket: Socket = io(process.env.REACT_APP_SOCKET_URL);
 
 const useSocket = (onIncomingCall: OnIncomingCall): void => {
   useEffect(() => {
-    const socket: Socket = io(process.env.SOCKET_URL);
-
     socket.on("connect", () => {
       console.log("connected to websocket server");
     });

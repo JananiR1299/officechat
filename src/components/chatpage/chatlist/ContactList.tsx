@@ -26,7 +26,7 @@ interface ContactListProps {
   onSelectUser: (user: Contact) => void;
 }
 
-const socket = io(process.env.SOCKET_URL);
+const socket = io(process.env.REACT_APP_SOCKET_URL);
 console.log(socket);
 
 const ContactList: React.FC<ContactListProps> = ({ onSelectUser }: any) => {

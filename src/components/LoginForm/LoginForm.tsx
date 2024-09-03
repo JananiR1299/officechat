@@ -157,7 +157,7 @@ const Wrapper = styled.div`
   }
 `;
 
-const socket: Socket = io(process.env.SOCKET_URL);
+const socket: Socket = io(process.env.REACT_APP_SOCKET_URL);
 
 const LoginForm: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);

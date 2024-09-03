@@ -33,7 +33,7 @@ import AgoraRTC, { IMicrophoneAudioTrack } from "agora-rtc-sdk-ng";
 // import { IconButton } from '@mui/material';
 import CallEndIcon from "@mui/icons-material/CallEnd";
 
-const socket = io(process.env.SOCKET_URL);
+const socket = io(process.env.REACT_APP_SOCKET_URL);
 const rtcClient: any = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
 
 interface HeaderProps {
