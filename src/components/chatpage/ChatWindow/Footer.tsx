@@ -27,9 +27,10 @@ interface FooterProps {
   setMessageList: React.Dispatch<React.SetStateAction<Message[]>>;
 }
 
-const socket: Socket = io(process.env.SOCKET_URL);
+const socket: Socket = io(process.env.REACT_APP_SOCKET_URL);
 
 const Footer: React.FC<FooterProps> = ({ userDetails, setMessageList }) => {
+  console.log(process.env.REACT_APP_SOCKET_URL);
   const [currentMessage, setcurrentMessage] = useState("");
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);

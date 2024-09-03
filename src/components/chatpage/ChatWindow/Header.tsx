@@ -371,49 +371,6 @@ const Header: React.FC<HeaderProps> = ({ selectedUser, onGroupCreate }) => {
     setSuggestionsVisible(false);
   };
 
-  // const endCall = async () => {
-  //   console.log("Ending call");
-  //   if (incomingCall) {
-  //     console.log("Call Ended");
-
-  //     // Fetch the necessary data for the API call
-  //     const callerId = incomingCall;
-  //     const receiverId = ""; // Fetch the receiver ID from your application state or logic
-  //     const groupId = ""; // Fetch the group ID from your application state or logic
-  //     const startTime = ""; // Fetch the start time of the call from your application state or logic
-  //     const endTime = new Date().toISOString(); // Get the current time as the end time
-  //     const callType = ""; // Specify the call type (e.g., voice, video)
-  //     const screenShared = false; // Indicate whether the screen was shared during the call
-
-  //     try {
-  //       // Make the API call to store the call data
-  //       const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/postCall`, {
-  //         CallerID: callerId,
-  //         ReceiverID: receiverId,
-  //         GroupID: groupId,
-  //         StartTime: startTime,
-  //         EndTime: endTime,
-  //         CallType: callType,
-  //         ScreenShared: screenShared,
-  //       });
-
-  //       console.log("Call data stored:", response.data);
-
-  //       // Reset the call-related state variables
-  //       socket.emit("CallEnded", { channelName, callerId: incomingCall });
-  //       setIncomingCall(null);
-  //       setChannelName("");
-  //       setToken("");
-  //       if (localAudioTrackRef.current) {
-  //         localAudioTrackRef.current.stop();
-  //         localAudioTrackRef.current = null;
-  //       }
-  //     } catch (err) {
-  //       console.error("Error storing call data:", err);
-  //     }
-  //   }
-  // };
-
   const endCall = () => {
     if (incomingCall) {
       console.log("Call rejected");
@@ -498,20 +455,8 @@ const Header: React.FC<HeaderProps> = ({ selectedUser, onGroupCreate }) => {
                     : selectedUser.UserID
                     ? selectedUser.Username
                     : selectedUser.GroupName}
-                  {/* {selectedUser
-                    ? selectedUser.UserID
-                      ? selectedUser.Username
-                      : selectedUser.GroupName
-                      ? selectedUser.GroupName
-                      : headerTitle
-                    : headerTitle} */}
                 </Typography>
               </Box>
-              {/* <GroupIcon
-              style={{ cursor: "pointer" }}
-              sx={{ color: "black" }}
-              onClick={handleDialogOpen} // Open dialog on click
-            /> */}
 
               <AgoraRTCProvider client={rtcClient}>
                 <div>
@@ -556,39 +501,6 @@ const Header: React.FC<HeaderProps> = ({ selectedUser, onGroupCreate }) => {
                   )}
                 </div>
               </AgoraRTCProvider>
-
-              {/* <AgoraRTCProvider client={rtcClient}>
-                <div>
-                  <IconButton onClick={startCall}>
-                    <CallIcon />
-                  </IconButton>
-
-                  {showCallPopup && (
-                    <CallPopup
-                      onAccept={handleCallAccepted}
-                      onReject={rejectCall}
-                    />
-                  )}
-
-                  {callAccepted && channelName && token && (
-                    <div>
-                      <AgoraClient channelName={channelName} token={token} />
-                      <div>
-                        <div>Call Duration: {formatTime(callDuration)}</div>
-                        <IconButton
-                          onClick={endCall}
-                          style={{
-                            backgroundColor: 'red',
-                            color: 'white',
-                          }}
-                        >
-                          <CallEndIcon />
-                        </IconButton>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </AgoraRTCProvider> */}
 
               <IconButton
                 sx={{ marginLeft: "auto", color: "#1976d2" }}

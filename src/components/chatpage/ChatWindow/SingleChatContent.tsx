@@ -57,10 +57,15 @@ const SingleChatContent: React.FC<SingleChatContentProps> = ({
 
   return (
     <Container
-      maxWidth="sm"
-      style={{ height: "100vh", display: "flex", flexDirection: "column" }}
+      style={{
+        height: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        width: "100%",
+        overflow: "auto",
+      }}
     >
-      <Box sx={{ flex: 1, overflow: "auto" }}>
+      <Box sx={{ flex: 1 }}>
         {/* {messageList.length > 0 ? ( */}
         {/* {loading && messageList.length === 0 ? (
           <Typography
@@ -128,6 +133,7 @@ const SingleChatContent: React.FC<SingleChatContentProps> = ({
                   display: "flex",
                   justifyContent: isSender ? "flex-start" : "flex-end",
                   padding: "0px",
+                  width: "100%",
                 }}
               >
                 <Box
