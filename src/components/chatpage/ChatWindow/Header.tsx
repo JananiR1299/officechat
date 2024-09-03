@@ -492,7 +492,7 @@ const Header: React.FC<HeaderProps> = ({ selectedUser, onGroupCreate }) => {
                   src={selectedUser.ProfilePicture || undefined}
                   sx={{ mr: 2 }}
                 />
-                <Typography variant="h6" color="white">
+                <Typography variant="h6" color="black">
                   {headerTitle
                     ? headerTitle
                     : selectedUser.UserID
