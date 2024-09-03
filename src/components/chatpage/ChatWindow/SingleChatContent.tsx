@@ -206,7 +206,7 @@ const SingleChatContent: React.FC<SingleChatContentProps> = ({
         <Box sx={style}>
           <img
             alt="User avatar"
-            src={process.env.IMAGE_URL + imagename}
+            src={process.env.REACT_APP_IMAGE_URL + "/" + imagename}
             style={{ maxWidth: "50%", maxHeight: "50%" }}
           />
         </Box>
