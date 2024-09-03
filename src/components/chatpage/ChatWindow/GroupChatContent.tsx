@@ -20,10 +20,15 @@ const GroupChatContent: React.FC<GroupChatContentProps> = ({
 }) => {
   return (
     <Container
-      maxWidth="sm"
-      style={{ height: "100vh", display: "flex", flexDirection: "column" }}
+      style={{
+        height: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        width: "100%",
+        overflow: "auto",
+      }}
     >
-      <Box sx={{ flex: 1, overflow: "auto" }}>
+      <Box sx={{ flex: 1 }}>
         {messageList && messageList.length > 0 ? (
           <List>
             {messageList.map((messageContent, index) => {
