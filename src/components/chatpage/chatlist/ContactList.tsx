@@ -46,24 +46,6 @@ const ContactList: React.FC<ContactListProps> = ({ onSelectUser }: any) => {
     setContact,
   } = useUser();
 
-  // onSelectUser = useCallback(
-  //   (user: any) => {
-  //     // handle user selection
-  //     console.log(user);
-  //     setActiveUser(user);
-  //   },
-  //   [setActiveUser]
-  // );
-
-  // const handleSetActiveUser = useCallback(
-  //   (userId: number | null) => {
-  //     setActiveUser(userId);
-
-  //     // Any other logic that should be memoized
-  //     setSelectedUserId(userId);
-  //   },
-  //   [setActiveUser, setSelectedUserId] // Dependencies
-  // );
   useEffect(() => {
     console.log("groupsgroups", groups);
     // if (selectedUserId) {
@@ -83,7 +65,7 @@ const ContactList: React.FC<ContactListProps> = ({ onSelectUser }: any) => {
 
           //     // Any other logic that should be memoized
           setSelectedUserId(firstUser.UserID); // Set first user as active
-          // onSelectUser(firstUser); // Pass the first user to parent component
+          onSelectUser(firstUser); // Pass the first user to parent component
         }
       })
       .catch((error) => {
