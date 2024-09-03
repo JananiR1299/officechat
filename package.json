@@ -59,6 +59,7 @@
   "author": "Umakani <umakani310@gmail.com>",
   "license": "MIT",
   "devDependencies": {
-    "typescript": "^5.5.3"
+    "typescript": "^5.5.3",
+    "shx": "^0.3.4"
   }
 }
