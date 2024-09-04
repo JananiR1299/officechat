@@ -14,6 +14,8 @@ import {
   Menu,
   MenuItem,
   Tooltip,
+  List,
+  ListItemText,
 } from "@mui/material";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import SendIcon from "@mui/icons-material/Send";
@@ -30,15 +32,17 @@ interface FooterProps {
 const socket: Socket = io(process.env.REACT_APP_SOCKET_URL);
 
 const Footer: React.FC<FooterProps> = ({ userDetails, setMessageList }) => {
+  console.log(process.env.REACT_APP_SOCKET_URL);
   const [currentMessage, setcurrentMessage] = useState("");
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [filePreview, setFilePreview] = useState<string | null>(null);
-
+  const [showFileList, setShowFileList] = useState(false);
   const { user } = useUser();
 
   const handleClick = (event: MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
+    setShowFileList(!showFileList);
   };
 
   const handleClose = () => {
@@ -59,6 +63,7 @@ const Footer: React.FC<FooterProps> = ({ userDetails, setMessageList }) => {
       } else {
         setFilePreview(null);
       }
+      setShowFileList(false);
     }
   };
 
@@ -74,40 +79,53 @@ const Footer: React.FC<FooterProps> = ({ userDetails, setMessageList }) => {
   };
 
   const sendMessage = async () => {
-    const currentTime = new Date();
-    let formData = {};
+    const currentTime = new Date().toISOString();
+    let fileData;
 
     if (selectedFile) {
       const base64File = await fileToBase64(selectedFile);
       const fileBlob = base64File.split(",")[1];
 
-      formData = {
+      fileData = {
         fileBlob,
         filename: selectedFile.name,
         filetype: selectedFile.type,
         filesize: selectedFile.size,
-        // MessageID: "5", // Ensure this is dynamic or handled correctly
       };
+
       setSelectedFile(null);
       setFilePreview(null);
     }
+
     console.log("userDetails userid", user?.userdata?.UserID);
-    const messageData = {
-      author: user?.userdata?.UserName,
+
+    const messageData: Message = {
+      author: user?.userdata?.UserName || "Unknown",
       receiverID: userDetails.UserID ? userDetails.UserID : undefined,
       groupID: userDetails.GroupID ? userDetails.GroupID : undefined,
-      SenderID: user?.userdata?.UserID,
+      SenderID: userDetails.UserID ? userDetails.UserID : undefined,
       Content: currentMessage ? currentMessage : selectedFile.name,
       SentAt: currentTime,
       IsDeleted: false,
       IsPinned: false,
       isGroupChat: userDetails.GroupID ? true : false,
-      file: formData,
+      fileData: fileData,
+      file: undefined,
     };
+
     if (currentMessage || selectedFile) {
       socket.emit("send_message", messageData);
       console.log("messageData", messageData);
-      setcurrentMessage("");
+
+      // Update the messageList state immediately after sending the message
+      setMessageList((prevList) => {
+        console.log("Previous List:", prevList);
+        const updatedList = [...prevList, messageData];
+        console.log("Updated List:", updatedList);
+        return updatedList;
+      });
+
+      setcurrentMessage(""); // Clear the input after sending
     }
   };
 
@@ -134,7 +152,7 @@ const Footer: React.FC<FooterProps> = ({ userDetails, setMessageList }) => {
     return () => {
       socket.off("receive_message", handleMessageReceive);
     };
-  }, [userDetails.UserID, setMessageList]);
+  }, [userDetails.UserID]);
 
   return (
     <Container sx={{ mt: "auto" }}>
@@ -178,7 +196,7 @@ const Footer: React.FC<FooterProps> = ({ userDetails, setMessageList }) => {
               ) : null,
               sx: {
                 borderRadius: "8px",
-                height: "40px",
+                height: "65px",
               },
             }}
           />
@@ -209,12 +227,11 @@ const Footer: React.FC<FooterProps> = ({ userDetails, setMessageList }) => {
         </Box>
         <IconButton
           onClick={sendMessage}
-          color="primary"
-          style={{ marginLeft: "5px" }}
+          style={{ marginLeft: "5px", color: "black" }}
         >
           <SendIcon />
         </IconButton>
-        <IconButton onClick={handleClick}>
+        {/* <IconButton onClick={handleClick}>
           <AttachFileIcon />
         </IconButton>
         <Menu
@@ -240,7 +257,46 @@ const Footer: React.FC<FooterProps> = ({ userDetails, setMessageList }) => {
               Attach Cloud Files
             </Button>
           </MenuItem>
-        </Menu>
+        </Menu> */}
+
+        <Box>
+          <IconButton onClick={handleClick} sx={{ color: "black" }}>
+            <AttachFileIcon />
+          </IconButton>
+
+          {showFileList && (
+            <List
+              sx={{
+                width: "250px",
+                backgroundColor: "#f9f9f9",
+                borderRadius: "8px",
+                padding: "10px",
+                position: "absolute",
+                bottom: "50px",
+                right: "20px",
+                boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+              }}
+            >
+              <label htmlFor="upload-file">
+                <ListItemText
+                  primary="Select File"
+                  sx={{
+                    "&:hover": {
+                      backgroundColor: "#f0f0f0",
+                      cursor: "pointer",
+                    },
+                  }}
+                />
+                <input
+                  type="file"
+                  onChange={handleFileChange}
+                  style={{ display: "none" }}
+                  id="upload-file"
+                />
+              </label>
+            </List>
+          )}
+        </Box>
       </Box>
     </Container>
   );

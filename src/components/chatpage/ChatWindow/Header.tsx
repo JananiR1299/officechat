@@ -13,6 +13,7 @@ import {
   ListItem,
   ListItemText,
   ListItemAvatar,
+  Stack,
 } from "@mui/material";
 import FolderIcon from "@mui/icons-material/Folder";
 import GroupAddIcon from "@mui/icons-material/GroupAdd";
@@ -44,6 +45,10 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ selectedUser, onGroupCreate }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  // State for child popover
+  const [childAnchorEl, setChildAnchorEl] = useState<null | HTMLElement>(null);
+  // State for email input in child popover
+  const [username, setUsername] = useState<string>("");
   const [query, setQuery] = useState<string>("");
   const [suggestions, setSuggestions] = useState<User[]>([]);
   const [selectedUserIDs, setSelectedUserIDs] = useState<number[]>([]);
@@ -66,6 +71,7 @@ const Header: React.FC<HeaderProps> = ({ selectedUser, onGroupCreate }) => {
     setselectActiveUser,
     user,
     headerTitle,
+    setHeaderTitle,
   } = useUser();
   const [channelName, setChannelName] = useState<string>("");
   const [token, setToken] = useState<string>("");
@@ -257,6 +263,27 @@ const Header: React.FC<HeaderProps> = ({ selectedUser, onGroupCreate }) => {
     setAnchorEl(null);
   };
 
+  // Handle child popover
+  const handleChildClick = (event: React.MouseEvent<HTMLElement>) => {
+    setChildAnchorEl(event.currentTarget);
+  };
+
+  const handleChildClose = () => {
+    setChildAnchorEl(null);
+  };
+
+  // Handle username change
+  const handleUsernameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setUsername(event.target.value);
+  };
+
+  // Handle Add button click
+  const handleAddClick = () => {
+    // Logic for adding the Username (e.g., sending to the backend)
+    console.log("Username added:", username);
+    handleChildClose(); // Close the child popover
+  };
+
   const fetchSuggestions = async (searchQuery) => {
     try {
       const response = await axios.get(
@@ -358,7 +385,7 @@ const Header: React.FC<HeaderProps> = ({ selectedUser, onGroupCreate }) => {
       setActiveGroup(updatedGroup.GroupID); // Ensure active group is updated
       setActiveUser(null);
       // setGroupDetails(response.data.group);
-      // setHeaderTitle(response.data.group.GroupName);
+      setHeaderTitle(namesArray.join(", "));
     } catch (error: any) {
       console.error("Error sending data:", error);
     }
@@ -387,6 +414,8 @@ const Header: React.FC<HeaderProps> = ({ selectedUser, onGroupCreate }) => {
   };
 
   const open = Boolean(anchorEl);
+  const openChild = Boolean(childAnchorEl);
+
   const id = open ? "simple-popover" : undefined;
 
   const handleDelete = async (userId: number, groupId: number) => {
@@ -506,7 +535,7 @@ const Header: React.FC<HeaderProps> = ({ selectedUser, onGroupCreate }) => {
                 sx={{ marginLeft: "auto", color: "#1976d2" }}
                 onClick={handleVideoClick}
               >
-                <VideocamIcon sx={{ fontSize: 30 }} />
+                <VideocamIcon sx={{ fontSize: 30, color: "black" }} />
               </IconButton>
 
               <IconButton sx={{ color: "black" }} onClick={handlePopoverOpen}>
@@ -530,9 +559,16 @@ const Header: React.FC<HeaderProps> = ({ selectedUser, onGroupCreate }) => {
               sx={{ p: 2 }}
             >
               {selectedUser.UserID ? (
-                <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 2,
+                    padding: 2,
+                  }}
+                >
                   <TextField
-                    label="Email ID"
+                    label="Enter Username"
                     type="email"
                     value={query}
                     onChange={handleEmailChange}
@@ -550,12 +586,9 @@ const Header: React.FC<HeaderProps> = ({ selectedUser, onGroupCreate }) => {
                   <Button variant="contained" onClick={handleCreateGroup}>
                     Create Group
                   </Button>
-                  <Button variant="contained" onClick={handleAddUser}>
-                    Add User
-                  </Button>
                 </Box>
               ) : (
-                <Box>
+                <Box sx={{ padding: 2 }}>
                   <Typography>People({groupMembers.length})</Typography>
 
                   <List style={{ width: "250px" }}>
@@ -617,6 +650,7 @@ const Header: React.FC<HeaderProps> = ({ selectedUser, onGroupCreate }) => {
                           cursor: "pointer",
                         },
                       }}
+                      onClick={handleChildClick}
                     >
                       <ListItemAvatar>
                         <Avatar>
@@ -676,6 +710,49 @@ const Header: React.FC<HeaderProps> = ({ selectedUser, onGroupCreate }) => {
                   {/* </Demo> */}
                 </Box>
               )}
+            </Popover>
+
+            {/* Child Popover */}
+            <Popover
+              open={openChild}
+              anchorEl={childAnchorEl}
+              onClose={handleChildClose}
+              anchorOrigin={{
+                vertical: "top",
+                horizontal: "right",
+              }}
+            >
+              <Box sx={{ p: 2, width: 300 }}>
+                <Typography variant="h6" gutterBottom>
+                  Add Username
+                </Typography>
+                <TextField
+                  fullWidth
+                  label="Username"
+                  type="text"
+                  value={query}
+                  onChange={handleEmailChange}
+                />
+                {suggestionsVisible && (
+                  <Suggestions
+                    suggestions={suggestions}
+                    onSelect={handleSelectUser}
+                  />
+                )}
+                <Stack
+                  direction="row"
+                  spacing={2}
+                  justifyContent="flex-end"
+                  sx={{ mt: 2 }}
+                >
+                  <Button variant="outlined" onClick={handleChildClose}>
+                    Cancel
+                  </Button>
+                  <Button variant="contained" onClick={handleAddClick}>
+                    Add
+                  </Button>
+                </Stack>
+              </Box>
             </Popover>
           </Box>
         ) : (

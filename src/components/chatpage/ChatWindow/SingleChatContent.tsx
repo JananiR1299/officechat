@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import {
   Box,
   Typography,
@@ -34,7 +34,7 @@ const SingleChatContent: React.FC<SingleChatContentProps> = ({
 }) => {
   const [open, setOpen] = React.useState(false);
   const [imagename, setImagename] = React.useState("");
-  // const [loading, setLoading] = React.useState<boolean>(true);
+  const chatEndRef = useRef<HTMLDivElement | null>(null);
 
   const handleOpen = (filename: string) => {
     setImagename(filename);
@@ -45,6 +45,13 @@ const SingleChatContent: React.FC<SingleChatContentProps> = ({
     setImagename("");
     setOpen(false);
   };
+
+  // Scroll to the bottom of the chat when messageList changes
+  // useEffect(() => {
+  //   if (chatEndRef.current) {
+  //     chatEndRef.current.scrollIntoView({ behavior: "smooth" });
+  //   }
+  // }, [messageList]);
 
   // Helper function to format time
   const formatTime = (timestamp: string) => {
@@ -66,15 +73,6 @@ const SingleChatContent: React.FC<SingleChatContentProps> = ({
       }}
     >
       <Box sx={{ flex: 1 }}>
-        {/* {messageList.length > 0 ? ( */}
-        {/* {loading && messageList.length === 0 ? (
-          <Typography
-            variant="body1"
-            sx={{ p: 2, textAlign: "center", mb: "150px" }}
-          >
-            Loading...
-          </Typography>
-        ) : ( */}
         <List>
           {messageList.map((messageContent, index) => {
             const isSender = userDetails.UserID === messageContent.SenderID;
@@ -188,13 +186,9 @@ const SingleChatContent: React.FC<SingleChatContentProps> = ({
               </ListItem>
             );
           })}
+          {/* Reference element for scrolling */}
+          <div ref={chatEndRef} />
         </List>
-        {/* )} */}
-        {/* // ) : (
-        //   <Box>
-        //     <h1>There is no conversation in this Chat</h1>
-        //   </Box>
-        // )} */}
       </Box>
 
       <Modal

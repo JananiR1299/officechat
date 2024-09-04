@@ -3,15 +3,21 @@
 
 export interface Message {
   file: any;
-  author: string;
-  room: string;
+  author: any;
   receiverID: number;
-  ChatID: number;
+  groupID: number;
   SenderID: number;
   Content: string;
   SentAt: string;
   IsDeleted: boolean;
   IsPinned: boolean;
+  isGroupChat: boolean;
+  fileData?: {
+    fileBlob: string;
+    filename: string;
+    filetype: string;
+    filesize: number;
+  };
 }
 export interface User {
   name: any;

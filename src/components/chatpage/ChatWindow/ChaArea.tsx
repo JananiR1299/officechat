@@ -23,7 +23,7 @@ const ChatArea: React.FC<ChatAreaProps> = ({ userDetails }) => {
     const fetchMessages = async () => {
       setLoading(true); // Start loading before fetching messages
       setNoConversation(false); // Reset noConversation state
-
+      console.log(activeGroup);
       try {
         let response;
         if (userDetails?.GroupID) {
@@ -33,6 +33,10 @@ const ChatArea: React.FC<ChatAreaProps> = ({ userDetails }) => {
         } else if (activeUser) {
           response = await axios.get(
             `${process.env.REACT_APP_API_URL}/api/messages/${activeUser}`
+          );
+        } else if (activeGroup) {
+          response = await axios.get(
+            `${process.env.REACT_APP_API_URL}/api/groupmessages?groupid=${userDetails.GroupID}`
           );
         } else {
           return;
@@ -49,10 +53,11 @@ const ChatArea: React.FC<ChatAreaProps> = ({ userDetails }) => {
           setLoading(false); // Stop loading
           // }, 1000);
         } else {
+          console.log("response.data", response.data);
           // setMessageList(response.data);
           // Delay the display of messages by 3 seconds
           // setTimeout(() => {
-          setHeaderTitle(response.data.GroupName || response.data.Username);
+          // setHeaderTitle(response.data.GroupName || response.data.Username);
           setMessageList(response.data);
           setLoading(false); // Stop loading after messages are set
           // }, 1000);
@@ -83,10 +88,10 @@ const ChatArea: React.FC<ChatAreaProps> = ({ userDetails }) => {
       setHeaderTitle(userDetails.GroupName || userDetails.Username);
       setMessageList([]);
     }
-  }, [userDetails, setHeaderTitle]);
+  }, [userDetails]);
   return (
     <>
-      <Box sx={{ display: "flex", flexDirection: "column", height: "80vh" }}>
+      <Box sx={{ display: "flex", flexDirection: "column", height: "89vh" }}>
         <Header
           Title={headerTitle}
           selectedUser={selectedUser || userDetails}

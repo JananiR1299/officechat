@@ -20,7 +20,7 @@ const ChatComponent: React.FC<ChatComponentProps> = ({
   messageList,
 }) => {
   const renderChatContent = () => {
-    if (userDetails?.GroupID) {
+    if (userDetails?.isGroupChat && userDetails.GroupID) {
       return (
         <GroupChatContent userDetails={userDetails} messageList={messageList} />
       );

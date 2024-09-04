@@ -18,6 +18,11 @@ const GroupChatContent: React.FC<GroupChatContentProps> = ({
   userDetails,
   messageList,
 }) => {
+  const formatTime = (timestamp: string) => {
+    const date = new Date(timestamp);
+    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  };
+
   return (
     <Container
       style={{
@@ -60,9 +65,9 @@ const GroupChatContent: React.FC<GroupChatContentProps> = ({
                             variant="body2"
                             color="text.primary"
                           >
-                            {isSender ? "You" : messageContent.author}
+                            {messageContent.author}
                           </Typography>
-                          {" — " + messageContent.SentAt}
+                          {formatTime(messageContent.SentAt)}
                         </>
                       }
                     />

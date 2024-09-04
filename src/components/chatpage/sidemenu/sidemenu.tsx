@@ -21,15 +21,6 @@ import ChatArea from "../ChatWindow/ChaArea";
 import { useUser } from "../../context/UserContext";
 import { User } from "../ChatWindow/messagetypes";
 
-// interface Item {
-//   details: string;
-//   id: number | null | undefined;
-//   ProfilePicture: string | undefined;
-//   Username: string;
-//   UserID: number | null;
-//   GroupID: number | null;
-// }
-
 interface ActivityContentProps {
   selectedItem: User;
   onSelect: (item: User) => void;
@@ -252,16 +243,6 @@ const SideMenu: React.FC = () => {
     setSelectedItem(null);
     setSelectedComponent(component);
   };
-
-  // // Handle group creation
-  // const handleGroupCreation = (groupEmail: string) => {
-  //   const newGroup = groupChats.find((group) => group.name === groupEmail);
-  //   if (newGroup) {
-  //     setSelectedItem(null); // Clear any selected item
-  //     setSelectedComponent("chat"); // Switch to chat component
-  //     setSelectedUser({ ...newGroup, GroupID: newGroup.id } as Item); // Update state with new group details
-  //   }
-  // };
 
   const renderContent = () => {
     console.log("selectedUser", setActiveUser);
