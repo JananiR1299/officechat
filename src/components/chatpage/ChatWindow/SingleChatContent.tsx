@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 import { Message } from "./messagetypes";
 import { Link } from "react-router-dom";
+import { useUser } from "components/context/UserContext";
 
 const style = {
   position: "absolute" as "absolute",
@@ -35,6 +36,7 @@ const SingleChatContent: React.FC<SingleChatContentProps> = ({
   const [open, setOpen] = React.useState(false);
   const [imagename, setImagename] = React.useState("");
   const chatEndRef = useRef<HTMLDivElement | null>(null);
+  const { activeUser } = useUser();
 
   const handleOpen = (filename: string) => {
     setImagename(filename);

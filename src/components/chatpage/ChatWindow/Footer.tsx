@@ -125,6 +125,8 @@ const Footer: React.FC<FooterProps> = ({ userDetails, setMessageList }) => {
       //   return updatedList;
       // });
 
+      // Optionally update the local state immediately to show the sent message
+      setMessageList((prevList) => [...prevList, messageData]);
       setcurrentMessage(""); // Clear the input after sending
     }
   };
@@ -139,7 +141,7 @@ const Footer: React.FC<FooterProps> = ({ userDetails, setMessageList }) => {
 
     const handleMessageReceive = (data) => {
       console.log("Message received on client:", data);
-      setMessageList((list) => [...list, data]);
+      // setMessageList((list) => [...list, data]);
     };
     socket.on("receive_message", handleMessageReceive);
     return () => {
