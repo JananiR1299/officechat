@@ -15,7 +15,7 @@ interface UserDetails {
 
 interface GroupDetails {
   groupID: number;
-  groupName: string;
+  GroupName: string;
   CreatedAt: string;
   // Add other group details here if needed
 }

@@ -17,13 +17,14 @@ const ChatArea: React.FC<ChatAreaProps> = ({ userDetails }) => {
   const [loading, setLoading] = useState<boolean>(true); // Set initial loading state to true
   const [noConversation, setNoConversation] = useState<boolean>(false);
 
-  const { activeGroup, activeUser, headerTitle, setHeaderTitle } = useUser();
+  const { activeGroup, activeUser, headerTitle, setHeaderTitle, user } =
+    useUser();
 
   useEffect(() => {
     const fetchMessages = async () => {
       setLoading(true); // Start loading before fetching messages
-      setNoConversation(false); // Reset noConversation state
-      console.log(activeGroup);
+      // setNoConversation(false); // Reset noConversation state
+      console.log("activeUser");
       try {
         let response;
         if (userDetails?.GroupID) {
@@ -47,25 +48,19 @@ const ChatArea: React.FC<ChatAreaProps> = ({ userDetails }) => {
             "No messages found:",
             response.data.error || "Empty data"
           );
-          // Delay the display of 'No conversation' message by 3 seconds
-          // setTimeout(() => {
-          setNoConversation(true);
-          setLoading(false); // Stop loading
-          // }, 1000);
+
+          setMessageList(response.data.error);
+          setLoading(false);
         } else {
           console.log("response.data", response.data);
-          // setMessageList(response.data);
-          // Delay the display of messages by 3 seconds
-          // setTimeout(() => {
-          // setHeaderTitle(response.data.GroupName || response.data.Username);
+
           setMessageList(response.data);
-          setLoading(false); // Stop loading after messages are set
-          // }, 1000);
+          setLoading(false);
         }
       } catch (error) {
         console.error("Error fetching messages:", error);
         setMessageList([]); // Ensure messageList is empty on error
-        setNoConversation(true); // Set noConversation state on error
+
         setLoading(false); // Stop loading state on error
       }
     };
@@ -86,7 +81,7 @@ const ChatArea: React.FC<ChatAreaProps> = ({ userDetails }) => {
   useEffect(() => {
     if (userDetails) {
       setHeaderTitle(userDetails.GroupName || userDetails.Username);
-      setMessageList([]);
+      // setMessageList([]);
     }
   }, [userDetails]);
   return (
@@ -103,15 +98,6 @@ const ChatArea: React.FC<ChatAreaProps> = ({ userDetails }) => {
             sx={{ p: 2, textAlign: "center", mb: "150px" }}
           >
             Loading...
-          </Typography>
-        ) : noConversation ? (
-          <Typography
-            variant="h4"
-            sx={{ p: 2, textAlign: "center", mb: "150px" }}
-          >
-            {userDetails.GroupID
-              ? "There is no conversation in this Group"
-              : "There is no conversation in this Chat"}
           </Typography>
         ) : (
           <ChatComponent

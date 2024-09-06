@@ -103,7 +103,7 @@ const Footer: React.FC<FooterProps> = ({ userDetails, setMessageList }) => {
       author: user?.userdata?.UserName || "Unknown",
       receiverID: userDetails.UserID ? userDetails.UserID : undefined,
       groupID: userDetails.GroupID ? userDetails.GroupID : undefined,
-      SenderID: userDetails.UserID ? userDetails.UserID : undefined,
+      SenderID: user?.userdata?.UserID ? user?.userdata?.UserID : undefined,
       Content: currentMessage ? currentMessage : selectedFile.name,
       SentAt: currentTime,
       IsDeleted: false,
@@ -118,12 +118,12 @@ const Footer: React.FC<FooterProps> = ({ userDetails, setMessageList }) => {
       console.log("messageData", messageData);
 
       // Update the messageList state immediately after sending the message
-      setMessageList((prevList) => {
-        console.log("Previous List:", prevList);
-        const updatedList = [...prevList, messageData];
-        console.log("Updated List:", updatedList);
-        return updatedList;
-      });
+      // setMessageList((prevList) => {
+      //   // console.log("Previous List:", prevList);
+      //   const updatedList = [...prevList, messageData];
+      //   // console.log("Updated List:", updatedList);
+      //   return updatedList;
+      // });
 
       setcurrentMessage(""); // Clear the input after sending
     }
@@ -135,13 +135,6 @@ const Footer: React.FC<FooterProps> = ({ userDetails, setMessageList }) => {
     });
     socket.on("disconnect", async () => {
       console.log("Connected to server:", socket.id);
-      // await axios
-      //   .post(`${process.env.REACT_APP_API_URL}/api/auth/logout`, {
-      //     userId: user?.userdata?.UserID, // Pass the user ID in the request body
-      //   }) // Replace with your actual logout API endpoint
-      //   .catch((error: any) => {
-      //     console.error("Logout failed:", error);
-      //   });
     });
 
     const handleMessageReceive = (data) => {
@@ -152,7 +145,7 @@ const Footer: React.FC<FooterProps> = ({ userDetails, setMessageList }) => {
     return () => {
       socket.off("receive_message", handleMessageReceive);
     };
-  }, [userDetails.UserID]);
+  }, [userDetails]);
 
   return (
     <Container sx={{ mt: "auto" }}>
@@ -163,6 +156,10 @@ const Footer: React.FC<FooterProps> = ({ userDetails, setMessageList }) => {
           p: 2,
           borderTop: 1,
           borderColor: "divider",
+          position: "fixed",
+          width: "70%",
+          bottom: "20px",
+          // marginBottom: "20px",
         }}
       >
         <Box sx={{ position: "relative", flexGrow: 1 }}>
@@ -196,7 +193,7 @@ const Footer: React.FC<FooterProps> = ({ userDetails, setMessageList }) => {
               ) : null,
               sx: {
                 borderRadius: "8px",
-                height: "65px",
+                height: "85px",
               },
             }}
           />

@@ -91,7 +91,7 @@ const ContactList: React.FC<ContactListProps> = ({ onSelectUser }: any) => {
     return () => {
       socket.off("userStatusUpdate");
     };
-  }, [setGroups, setContact]);
+  }, [setGroups]);
 
   useEffect(() => {
     if (user) {
@@ -139,6 +139,7 @@ const ContactList: React.FC<ContactListProps> = ({ onSelectUser }: any) => {
         display: "flex",
         flexDirection: "column",
         border: "1px solid #bdbdbd",
+        marginTop: "60px",
       }}
     >
       {" "}
@@ -265,7 +266,27 @@ const ContactList: React.FC<ContactListProps> = ({ onSelectUser }: any) => {
         Groups
       </Typography>
       {groups && groups.length > 0 ? (
-        <List sx={{ flexGrow: 1, height: "327px", overflow: "auto" }}>
+        <List
+          sx={{
+            flexGrow: 1,
+            overflow: "auto",
+            height: "250px",
+            "&::-webkit-scrollbar": {
+              width: "0",
+              transition: "width 0.3s ease",
+            },
+            "&:hover::-webkit-scrollbar": {
+              width: "6px",
+            },
+            "&::-webkit-scrollbar-thumb": {
+              backgroundColor: "#888",
+              borderRadius: "10px",
+            },
+            "&::-webkit-scrollbar-thumb:hover": {
+              backgroundColor: "#555",
+            },
+          }}
+        >
           {" "}
           {/* Allow list to scroll */}
           {groups.map((item: any) => (

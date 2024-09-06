@@ -22,7 +22,7 @@ const GroupChatContent: React.FC<GroupChatContentProps> = ({
     const date = new Date(timestamp);
     return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   };
-
+  console.log("groupmessageList", messageList);
   return (
     <Container
       style={{
@@ -77,9 +77,7 @@ const GroupChatContent: React.FC<GroupChatContentProps> = ({
             })}
           </List>
         ) : (
-          <Box>
-            <h1>There is no conversation in this group</h1>
-          </Box>
+          <Typography> There is no messages.</Typography>
         )}
       </Box>
     </Container>

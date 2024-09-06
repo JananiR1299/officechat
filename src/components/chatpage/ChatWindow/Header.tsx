@@ -1,6 +1,9 @@
 import axios from "axios";
 import React, { MouseEvent, useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+
+import InputBase from "@mui/material/InputBase";
+import { styled, alpha } from "@mui/material/styles";
 import {
   Box,
   IconButton,
@@ -16,6 +19,8 @@ import {
   Stack,
 } from "@mui/material";
 import FolderIcon from "@mui/icons-material/Folder";
+
+import SearchIcon from "@mui/icons-material/Search";
 import GroupAddIcon from "@mui/icons-material/GroupAdd";
 import PersonAddAltIcon from "@mui/icons-material/PersonAddAlt";
 import CloseIcon from "@mui/icons-material/Close";
@@ -43,16 +48,56 @@ interface HeaderProps {
   Title: string | null;
 }
 
+const Search = styled("div")(({ theme }) => ({
+  position: "relative",
+
+  borderRadius: theme.shape.borderRadius,
+  backgroundColor: alpha(theme.palette.common.white, 0.15),
+  "&:hover": {
+    backgroundColor: alpha(theme.palette.common.white, 0.25),
+  },
+  marginRight: theme.spacing(2),
+  marginLeft: 0,
+  width: "100%",
+  [theme.breakpoints.up("sm")]: {
+    marginLeft: theme.spacing(3),
+    width: "auto",
+  },
+}));
+
+const SearchIconWrapper = styled("div")(({ theme }) => ({
+  padding: theme.spacing(0, 2),
+  height: "100%",
+  position: "absolute",
+  pointerEvents: "none",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+}));
+
+const StyledInputBase = styled(InputBase)(({ theme }) => ({
+  color: "inherit",
+  "& .MuiInputBase-input": {
+    padding: theme.spacing(1, 1, 1, 0),
+    paddingLeft: `calc(1em + ${theme.spacing(4)})`,
+    transition: theme.transitions.create("width"),
+    width: "100%",
+    [theme.breakpoints.up("md")]: {
+      width: "20ch",
+    },
+  },
+}));
+
 const Header: React.FC<HeaderProps> = ({ selectedUser, onGroupCreate }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   // State for child popover
   const [childAnchorEl, setChildAnchorEl] = useState<null | HTMLElement>(null);
   // State for email input in child popover
   const [username, setUsername] = useState<string>("");
-  const [query, setQuery] = useState<string>("");
+  const [query, setQuery] = useState<any>("");
   const [suggestions, setSuggestions] = useState<User[]>([]);
   const [selectedUserIDs, setSelectedUserIDs] = useState<number[]>([]);
-  const [, setGroupDetails] = useState();
+  const [, setGroupDetails] = useState<any>("");
   const [groupMembers, setGroupMembers] = useState<User[]>([]);
   const [hoveredUserId, setHoveredUserId] = useState<number | null>(null);
   const [openModal, setOpenModal] = useState(false);
@@ -278,10 +323,75 @@ const Header: React.FC<HeaderProps> = ({ selectedUser, onGroupCreate }) => {
   };
 
   // Handle Add button click
-  const handleAddClick = () => {
+  const handleAddClick = async () => {
     // Logic for adding the Username (e.g., sending to the backend)
     console.log("Username added:", username);
     handleChildClose(); // Close the child popover
+
+    const { GroupID } = selectedUser;
+    const namesArray =
+      query &&
+      query
+        ?.split(",")
+        .map((name) => name.trim())
+        .filter((name) => name.length > 0);
+
+    try {
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/addUsers?`,
+        {
+          // Email: groupEmail,
+          GroupID: GroupID,
+          Usernames: namesArray || null,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      // const updatedGroup = response.data.group;
+      // setGroupDetails(updatedGroup); // Update with new group details
+      // setActiveGroup(updatedGroup.GroupID); // Ensure active group is updated
+      // setActiveUser(null);
+      // console.log(updatedGroup);
+      // // setGroupDetails(response.data.group);
+
+      // // Update local state to remove the deleted user
+      // setGroupMembers((prevMembers) => [
+      //   ...prevMembers,
+      //   updatedGroup.GroupName,
+      // ]);
+      // console.log(groupMembers);
+      // setHeaderTitle(headerTitle + "," + namesArray.join(", "));
+
+      const updatedGroup = response.data.group;
+      const newMemberName = namesArray.join(", "); // Assuming namesArray contains the new user names
+      console.log(newMemberName);
+      // Step 1: Update group details with the new user (group name should reflect all members)
+      setGroupDetails((prevDetails) => ({
+        ...prevDetails,
+        GroupName: prevDetails?.GroupName + ", " + newMemberName, // Update group name with new members
+      }));
+      setGroups((prevGroup) => ({
+        ...prevGroup,
+        GroupName: updatedGroup.GroupName, // Only update the group name
+      }));
+      setActiveGroup(updatedGroup.GroupID);
+      setActiveUser(null); // Clear the active user if necessary
+
+      // Step 3: Update the group members state by adding new members
+      setGroupMembers((prevMembers) => [...prevMembers, newMemberName]);
+
+      // Step 4: Update the header title by appending the new user's name
+      setHeaderTitle(headerTitle + ", " + newMemberName); // Add new member to the header title
+
+      console.log("Updated Group Details:", updatedGroup);
+      console.log("Updated Group Members:", groupMembers);
+    } catch (error: any) {
+      console.error("Error sending data:", error);
+    }
   };
 
   const fetchSuggestions = async (searchQuery) => {
@@ -303,6 +413,7 @@ const Header: React.FC<HeaderProps> = ({ selectedUser, onGroupCreate }) => {
   const handleEmailChange = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
+    console.log("event.target.value", event.target.value);
     const value = event.target.value;
     setQuery(value); // Update the query state
     if (value) {
@@ -319,10 +430,12 @@ const Header: React.FC<HeaderProps> = ({ selectedUser, onGroupCreate }) => {
 
     const loggedInUserId = user?.userdata?.UserID || null;
 
-    const namesArray = query
-      .split(",")
-      .map((name) => name.trim())
-      .filter((name) => name.length > 0);
+    const namesArray =
+      query &&
+      query
+        ?.split(",")
+        .map((name) => name.trim())
+        .filter((name) => name.length > 0);
     const groupname = [(selectedUser as User).Username, ...namesArray].join(
       ", "
     );
@@ -359,40 +472,9 @@ const Header: React.FC<HeaderProps> = ({ selectedUser, onGroupCreate }) => {
     }
   };
 
-  const { GroupID } = selectedUser;
-  const namesArray = query
-    .split(",")
-    .map((name) => name.trim())
-    .filter((name) => name.length > 0);
-  const handleAddUser = async () => {
-    try {
-      const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/api/addUsers?`,
-        {
-          // Email: groupEmail,
-          GroupID: GroupID,
-          Usernames: namesArray || null,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      const updatedGroup = response.data.group;
-      setGroupDetails(updatedGroup); // Update with new group details
-      setActiveGroup(updatedGroup.GroupID); // Ensure active group is updated
-      setActiveUser(null);
-      // setGroupDetails(response.data.group);
-      setHeaderTitle(namesArray.join(", "));
-    } catch (error: any) {
-      console.error("Error sending data:", error);
-    }
-  };
-
   const handleSelectUser = (username) => {
-    setQuery(username);
+    console.log("username", username);
+    setQuery(username.Username);
     setSelectedUserIDs(username);
     setSuggestions([]);
     setSuggestionsVisible(false);
@@ -466,6 +548,7 @@ const Header: React.FC<HeaderProps> = ({ selectedUser, onGroupCreate }) => {
                 bgcolor: "#dbd5d1",
                 p: 3,
                 height: 65,
+                marginTop: "60px",
               }}
             >
               <Box sx={{ display: "flex", alignItems: "center" }}>
@@ -565,6 +648,7 @@ const Header: React.FC<HeaderProps> = ({ selectedUser, onGroupCreate }) => {
                     flexDirection: "column",
                     gap: 2,
                     padding: 2,
+                    position: "relative", // This ensures that suggestions are positioned relative to the box
                   }}
                 >
                   <TextField
@@ -577,12 +661,24 @@ const Header: React.FC<HeaderProps> = ({ selectedUser, onGroupCreate }) => {
                     fullWidth
                   />
                   {suggestionsVisible && (
-                    <Suggestions
-                      suggestions={suggestions}
-                      onSelect={handleSelectUser}
-                    />
+                    <Box
+                      sx={{
+                        position: "absolute",
+                        top: "100%", // Position the suggestions below the TextField
+                        left: 0,
+                        right: 0,
+                        zIndex: 1,
+                        backgroundColor: "white", // Ensure it's visible
+                        boxShadow: 3,
+                        borderRadius: 1,
+                      }}
+                    >
+                      <Suggestions
+                        suggestions={suggestions}
+                        onSelect={handleSelectUser}
+                      />
+                    </Box>
                   )}
-
                   <Button variant="contained" onClick={handleCreateGroup}>
                     Create Group
                   </Button>
@@ -726,7 +822,7 @@ const Header: React.FC<HeaderProps> = ({ selectedUser, onGroupCreate }) => {
                 <Typography variant="h6" gutterBottom>
                   Add Username
                 </Typography>
-                <TextField
+                {/* <TextField
                   fullWidth
                   label="Username"
                   type="text"
@@ -738,7 +834,26 @@ const Header: React.FC<HeaderProps> = ({ selectedUser, onGroupCreate }) => {
                     suggestions={suggestions}
                     onSelect={handleSelectUser}
                   />
-                )}
+                )} */}
+
+                <Search>
+                  <SearchIconWrapper>
+                    <SearchIcon />
+                  </SearchIconWrapper>
+                  <StyledInputBase
+                    placeholder="Search…"
+                    inputProps={{ "aria-label": "search" }}
+                    onChange={handleEmailChange}
+                    value={query}
+                  />
+                  {suggestionsVisible && (
+                    <Suggestions
+                      suggestions={suggestions}
+                      onSelect={handleSelectUser}
+                    />
+                  )}
+                </Search>
+
                 <Stack
                   direction="row"
                   spacing={2}

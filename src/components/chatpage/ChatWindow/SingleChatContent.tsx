@@ -47,11 +47,11 @@ const SingleChatContent: React.FC<SingleChatContentProps> = ({
   };
 
   // Scroll to the bottom of the chat when messageList changes
-  // useEffect(() => {
-  //   if (chatEndRef.current) {
-  //     chatEndRef.current.scrollIntoView({ behavior: "smooth" });
-  //   }
-  // }, [messageList]);
+  useEffect(() => {
+    if (chatEndRef.current) {
+      chatEndRef.current.scrollIntoView({ behavior: "auto" });
+    }
+  }, [messageList]);
 
   // Helper function to format time
   const formatTime = (timestamp: string) => {
@@ -65,104 +65,45 @@ const SingleChatContent: React.FC<SingleChatContentProps> = ({
   return (
     <Container
       style={{
-        height: "100vh",
+        // height: "100vh",
         display: "flex",
         flexDirection: "column",
         width: "100%",
         overflow: "auto",
+        // height: "250px",
+        marginBottom: "60px",
       }}
     >
       <Box sx={{ flex: 1 }}>
-        <List>
-          {messageList.map((messageContent, index) => {
-            const isSender = userDetails.UserID === messageContent.SenderID;
-            const isImage = isImageUrl(messageContent.Content);
+        {messageList && messageList.length > 0 ? (
+          <List>
+            {messageList.map((messageContent, index) => {
+              console.log("messageContent", messageList);
+              const isSender = userDetails.UserID === messageContent.SenderID;
+              const isImage = isImageUrl(messageContent.Content);
 
-            const renderFilePreview = () => {
-              if (!messageContent.file) return null;
+              const renderFilePreview = () => {
+                if (!messageContent.file) return null;
 
-              const { filetype, url, filename } = messageContent.file;
-              let preview;
+                const { filetype, url, filename } = messageContent.file;
+                let preview;
 
-              if (filetype?.startsWith("image/")) {
-                preview = (
-                  <Link onClick={() => handleOpen(filename)} to="#">
-                    {filename}
-                  </Link>
-                );
-              } else if (filetype?.startsWith("video/")) {
-                preview = (
-                  <video controls src={url} style={{ maxWidth: "200px" }} />
-                );
-              } else if (filetype?.startsWith("audio/")) {
-                preview = <audio controls src={url} />;
-              } else {
-                preview = (
-                  <ListItemText
-                    primary={messageContent.Content}
-                    secondary={
-                      <>
-                        <Typography
-                          component="span"
-                          variant="body2"
-                          color="text.primary"
-                        ></Typography>
-                        <Typography
-                          component="span"
-                          variant="body2"
-                          color="text.secondary"
-                          sx={{ fontSize: "0.75rem", marginLeft: 5 }}
-                        >
-                          {formatTime(messageContent.SentAt)}
-                        </Typography>
-                      </>
-                    }
-                  />
-                );
-              }
-
-              return <div style={{ marginTop: "10px" }}>{preview}</div>;
-            };
-
-            return (
-              <ListItem
-                key={index}
-                style={{
-                  display: "flex",
-                  justifyContent: isSender ? "flex-start" : "flex-end",
-                  padding: "0px",
-                  width: "100%",
-                }}
-              >
-                <Box
-                  sx={{
-                    maxWidth: "60%",
-                    padding: "0.75rem",
-                    borderRadius: "10px",
-                    backgroundColor: isSender ? "#f1f0f0" : "#e1ffc7",
-                    boxShadow: 2,
-                    textAlign: isSender ? "left" : "right",
-                    margin: "5px",
-                  }}
-                >
-                  {messageContent.file ? (
-                    <ListItemText>{renderFilePreview()}</ListItemText>
-                  ) : (
+                if (filetype?.startsWith("image/")) {
+                  preview = (
+                    <Link onClick={() => handleOpen(filename)} to="#">
+                      {filename}
+                    </Link>
+                  );
+                } else if (filetype?.startsWith("video/")) {
+                  preview = (
+                    <video controls src={url} style={{ maxWidth: "200px" }} />
+                  );
+                } else if (filetype?.startsWith("audio/")) {
+                  preview = <audio controls src={url} />;
+                } else {
+                  preview = (
                     <ListItemText
-                      primary={
-                        isImage ? (
-                          <Link
-                            onClick={() => handleOpen(messageContent.Content)}
-                            to="#"
-                          >
-                            <Typography variant="body2" color="text.primary">
-                              {messageContent.Content}
-                            </Typography>
-                          </Link>
-                        ) : (
-                          messageContent.Content
-                        )
-                      }
+                      primary={messageContent.Content}
                       secondary={
                         <>
                           <Typography
@@ -181,14 +122,80 @@ const SingleChatContent: React.FC<SingleChatContentProps> = ({
                         </>
                       }
                     />
-                  )}
-                </Box>
-              </ListItem>
-            );
-          })}
-          {/* Reference element for scrolling */}
-          <div ref={chatEndRef} />
-        </List>
+                  );
+                }
+
+                return <div style={{ marginTop: "10px" }}>{preview}</div>;
+              };
+
+              return (
+                <ListItem
+                  key={index}
+                  style={{
+                    display: "flex",
+                    justifyContent: isSender ? "flex-start" : "flex-end",
+                    padding: "0px",
+                    width: "100%",
+                  }}
+                >
+                  <Box
+                    sx={{
+                      maxWidth: "60%",
+                      padding: "0.75rem",
+                      borderRadius: "10px",
+                      backgroundColor: isSender ? "#f1f0f0" : "#e1ffc7",
+                      boxShadow: 2,
+                      textAlign: isSender ? "left" : "right",
+                      margin: "5px",
+                    }}
+                  >
+                    {messageContent.file ? (
+                      <ListItemText>{renderFilePreview()}</ListItemText>
+                    ) : (
+                      <ListItemText
+                        primary={
+                          isImage ? (
+                            <Link
+                              onClick={() => handleOpen(messageContent.Content)}
+                              to="#"
+                            >
+                              <Typography variant="body2" color="text.primary">
+                                {messageContent.Content}
+                              </Typography>
+                            </Link>
+                          ) : (
+                            messageContent.Content
+                          )
+                        }
+                        secondary={
+                          <>
+                            <Typography
+                              component="span"
+                              variant="body2"
+                              color="text.primary"
+                            ></Typography>
+                            <Typography
+                              component="span"
+                              variant="body2"
+                              color="text.secondary"
+                              sx={{ fontSize: "0.75rem", marginLeft: 5 }}
+                            >
+                              {formatTime(messageContent.SentAt)}
+                            </Typography>
+                          </>
+                        }
+                      />
+                    )}
+                  </Box>
+                </ListItem>
+              );
+            })}
+            {/* Reference element for scrolling */}
+            <div ref={chatEndRef}></div>
+          </List>
+        ) : (
+          <Typography> There is no messages.</Typography>
+        )}
       </Box>
 
       <Modal
