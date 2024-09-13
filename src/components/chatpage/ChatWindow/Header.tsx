@@ -216,16 +216,28 @@ const Header: React.FC<HeaderProps> = ({ selectedUser, onGroupCreate }) => {
   const handleCallAccepted = async () => {
     startCallTimer();
     try {
+      console.log("Call accepted");
       setCallAccepted(true);
       setIsCallPopupVisible(false);
       setShowCallPopup(false);
       socket.emit("callAccepted", { channelName, callerId: incomingCall });
-
+      const appId: string = "1369151da2df4f33bdd842b8c0797085";
+      // Ensure user joins the Agora channel before publishing
+      const uid = await rtcClient.join(
+        appId,
+        channelName,
+        token,
+        user?.userdata?.UserID
+      );
+      console.log("User joined the channel:", uid);
       // Start the local audio track
       const localAudioTrack: IMicrophoneAudioTrack =
-        await rtcClient.createMicrophoneAudioTrack();
+        await AgoraRTC.createMicrophoneAudioTrack();
       localAudioTrackRef.current = localAudioTrack;
+
+      // Publish the audio track
       await rtcClient.publish([localAudioTrack]);
+      console.log("Audio track published successfully");
     } catch (error) {
       console.error("Error accepting the call:", error);
     }

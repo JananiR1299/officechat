@@ -43,14 +43,15 @@ const AgoraClient: FC<AgoraClientProps> = ({ channelName, token }) => {
       codec: "vp8",
     });
 
-    console.log("App ID:", appId);
-    console.log("Channel Name:", channelName);
-    console.log("Token:", token);
-
     const init = async () => {
+      console.log("init");
+      console.log("App ID:", appId);
+      console.log("Channel Name:", channelName);
+      console.log("Token:", token);
       try {
+        console.log("try");
         // Join the channel
-        console.log("appid", appId);
+        // console.log("appid", appId);
         await client.join(appId, channelName, token, null);
         console.log("Joined channel successfully");
 
@@ -69,6 +70,7 @@ const AgoraClient: FC<AgoraClientProps> = ({ channelName, token }) => {
             user: IAgoraRTCRemoteUser,
             mediaType: "audio" | "video" | "datachannel"
           ) => {
+            console.log("userAudiotrack", user);
             await client.subscribe(user, mediaType);
 
             if (mediaType === "audio") {
