@@ -1,9 +1,6 @@
 import axios from "axios";
 import React, { MouseEvent, useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-
-import InputBase from "@mui/material/InputBase";
-import { styled, alpha } from "@mui/material/styles";
 import {
   Box,
   IconButton,
@@ -16,17 +13,15 @@ import {
   ListItem,
   ListItemText,
   ListItemAvatar,
-  Stack,
 } from "@mui/material";
 import FolderIcon from "@mui/icons-material/Folder";
-
-import SearchIcon from "@mui/icons-material/Search";
 import GroupAddIcon from "@mui/icons-material/GroupAdd";
 import PersonAddAltIcon from "@mui/icons-material/PersonAddAlt";
 import CloseIcon from "@mui/icons-material/Close";
 import { User } from "./messagetypes";
 import GroupIcon from "@mui/icons-material/Group";
 import VideocamIcon from "@mui/icons-material/Videocam";
+import MoreVertOutlinedIcon from "@mui/icons-material/MoreVertOutlined";
 import { useUser } from "../../context/UserContext";
 import io from "socket.io-client";
 import Suggestions from "../Header/Suggestions";
@@ -48,56 +43,14 @@ interface HeaderProps {
   Title: string | null;
 }
 
-const Search = styled("div")(({ theme }) => ({
-  position: "relative",
-
-  borderRadius: theme.shape.borderRadius,
-  backgroundColor: alpha(theme.palette.common.white, 0.15),
-  "&:hover": {
-    backgroundColor: alpha(theme.palette.common.white, 0.25),
-  },
-  marginRight: theme.spacing(2),
-  marginLeft: 0,
-  width: "100%",
-  [theme.breakpoints.up("sm")]: {
-    marginLeft: theme.spacing(3),
-    width: "auto",
-  },
-}));
-
-const SearchIconWrapper = styled("div")(({ theme }) => ({
-  padding: theme.spacing(0, 2),
-  height: "100%",
-  position: "absolute",
-  pointerEvents: "none",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-}));
-
-const StyledInputBase = styled(InputBase)(({ theme }) => ({
-  color: "inherit",
-  "& .MuiInputBase-input": {
-    padding: theme.spacing(1, 1, 1, 0),
-    paddingLeft: `calc(1em + ${theme.spacing(4)})`,
-    transition: theme.transitions.create("width"),
-    width: "100%",
-    [theme.breakpoints.up("md")]: {
-      width: "20ch",
-    },
-  },
-}));
-
 const Header: React.FC<HeaderProps> = ({ selectedUser, onGroupCreate }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   // State for child popover
   const [childAnchorEl, setChildAnchorEl] = useState<null | HTMLElement>(null);
-  // State for email input in child popover
-  const [username, setUsername] = useState<string>("");
-  const [query, setQuery] = useState<any>("");
+  const [query, setQuery] = useState<string>("");
   const [suggestions, setSuggestions] = useState<User[]>([]);
   const [selectedUserIDs, setSelectedUserIDs] = useState<number[]>([]);
-  const [, setGroupDetails] = useState<any>("");
+  const [, setGroupDetails] = useState();
   const [groupMembers, setGroupMembers] = useState<User[]>([]);
   const [hoveredUserId, setHoveredUserId] = useState<number | null>(null);
   const [openModal, setOpenModal] = useState(false);
@@ -116,7 +69,7 @@ const Header: React.FC<HeaderProps> = ({ selectedUser, onGroupCreate }) => {
     setselectActiveUser,
     user,
     headerTitle,
-    setHeaderTitle,
+    activeUser,
   } = useUser();
   const [channelName, setChannelName] = useState<string>("");
   const [token, setToken] = useState<string>("");
@@ -139,9 +92,17 @@ const Header: React.FC<HeaderProps> = ({ selectedUser, onGroupCreate }) => {
 
   const [showCallPopup, setShowCallPopup] = useState(false);
 
+  const handleChildClick = (event: React.MouseEvent<HTMLElement>) => {
+    setChildAnchorEl(event.currentTarget);
+  };
+
+  const handleChildClose = () => {
+    setChildAnchorEl(null);
+  };
   var callerdetail;
 
   useEffect(() => {
+    // console.log(activeUser);
     socket.emit("register", user?.userdata?.UserID);
 
     socket.on(
@@ -308,92 +269,6 @@ const Header: React.FC<HeaderProps> = ({ selectedUser, onGroupCreate }) => {
     setAnchorEl(null);
   };
 
-  // Handle child popover
-  const handleChildClick = (event: React.MouseEvent<HTMLElement>) => {
-    setChildAnchorEl(event.currentTarget);
-  };
-
-  const handleChildClose = () => {
-    setChildAnchorEl(null);
-  };
-
-  // Handle username change
-  const handleUsernameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setUsername(event.target.value);
-  };
-
-  // Handle Add button click
-  const handleAddClick = async () => {
-    // Logic for adding the Username (e.g., sending to the backend)
-    console.log("Username added:", username);
-    handleChildClose(); // Close the child popover
-
-    const { GroupID } = selectedUser;
-    const namesArray =
-      query &&
-      query
-        ?.split(",")
-        .map((name) => name.trim())
-        .filter((name) => name.length > 0);
-
-    try {
-      const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/api/addUsers?`,
-        {
-          // Email: groupEmail,
-          GroupID: GroupID,
-          Usernames: namesArray || null,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      // const updatedGroup = response.data.group;
-      // setGroupDetails(updatedGroup); // Update with new group details
-      // setActiveGroup(updatedGroup.GroupID); // Ensure active group is updated
-      // setActiveUser(null);
-      // console.log(updatedGroup);
-      // // setGroupDetails(response.data.group);
-
-      // // Update local state to remove the deleted user
-      // setGroupMembers((prevMembers) => [
-      //   ...prevMembers,
-      //   updatedGroup.GroupName,
-      // ]);
-      // console.log(groupMembers);
-      // setHeaderTitle(headerTitle + "," + namesArray.join(", "));
-
-      const updatedGroup = response.data.group;
-      const newMemberName = namesArray.join(", "); // Assuming namesArray contains the new user names
-      console.log(newMemberName);
-      // Step 1: Update group details with the new user (group name should reflect all members)
-      setGroupDetails((prevDetails) => ({
-        ...prevDetails,
-        GroupName: prevDetails?.GroupName + ", " + newMemberName, // Update group name with new members
-      }));
-      setGroups((prevGroup) => ({
-        ...prevGroup,
-        GroupName: updatedGroup.GroupName, // Only update the group name
-      }));
-      setActiveGroup(updatedGroup.GroupID);
-      setActiveUser(null); // Clear the active user if necessary
-
-      // Step 3: Update the group members state by adding new members
-      setGroupMembers((prevMembers) => [...prevMembers, newMemberName]);
-
-      // Step 4: Update the header title by appending the new user's name
-      setHeaderTitle(headerTitle + ", " + newMemberName); // Add new member to the header title
-
-      console.log("Updated Group Details:", updatedGroup);
-      console.log("Updated Group Members:", groupMembers);
-    } catch (error: any) {
-      console.error("Error sending data:", error);
-    }
-  };
-
   const fetchSuggestions = async (searchQuery) => {
     try {
       const response = await axios.get(
@@ -413,7 +288,6 @@ const Header: React.FC<HeaderProps> = ({ selectedUser, onGroupCreate }) => {
   const handleEmailChange = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    console.log("event.target.value", event.target.value);
     const value = event.target.value;
     setQuery(value); // Update the query state
     if (value) {
@@ -430,12 +304,10 @@ const Header: React.FC<HeaderProps> = ({ selectedUser, onGroupCreate }) => {
 
     const loggedInUserId = user?.userdata?.UserID || null;
 
-    const namesArray =
-      query &&
-      query
-        ?.split(",")
-        .map((name) => name.trim())
-        .filter((name) => name.length > 0);
+    const namesArray = query
+      .split(",")
+      .map((name) => name.trim())
+      .filter((name) => name.length > 0);
     const groupname = [(selectedUser as User).Username, ...namesArray].join(
       ", "
     );
@@ -472,9 +344,40 @@ const Header: React.FC<HeaderProps> = ({ selectedUser, onGroupCreate }) => {
     }
   };
 
+  const { GroupID } = selectedUser;
+  const namesArray = query
+    .split(",")
+    .map((name) => name.trim())
+    .filter((name) => name.length > 0);
+  const handleAddUser = async () => {
+    try {
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/addUsers?`,
+        {
+          // Email: groupEmail,
+          GroupID: GroupID,
+          Usernames: namesArray || null,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const updatedGroup = response.data.group;
+      setGroupDetails(updatedGroup); // Update with new group details
+      setActiveGroup(updatedGroup.GroupID); // Ensure active group is updated
+      setActiveUser(null);
+      // setGroupDetails(response.data.group);
+      // setHeaderTitle(response.data.group.GroupName);
+    } catch (error: any) {
+      console.error("Error sending data:", error);
+    }
+  };
+
   const handleSelectUser = (username) => {
-    console.log("username", username);
-    setQuery(username.Username);
+    setQuery(username);
     setSelectedUserIDs(username);
     setSuggestions([]);
     setSuggestionsVisible(false);
@@ -496,8 +399,6 @@ const Header: React.FC<HeaderProps> = ({ selectedUser, onGroupCreate }) => {
   };
 
   const open = Boolean(anchorEl);
-  const openChild = Boolean(childAnchorEl);
-
   const id = open ? "simple-popover" : undefined;
 
   const handleDelete = async (userId: number, groupId: number) => {
@@ -535,32 +436,80 @@ const Header: React.FC<HeaderProps> = ({ selectedUser, onGroupCreate }) => {
     setOpenModal(true);
   };
 
+  console.log("selectedUser", selectedUser?.isActive);
   return (
     <>
       <Box sx={{ flexGrow: 1 }}>
         {selectedUser ? (
-          <Box>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              padding: "10px",
+              height: "80px",
+              borderBottom: "1px solid #ccc",
+              bgcolor: "white",
+            }}
+          >
             <Box
               sx={{
                 display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                bgcolor: "#dbd5d1",
-                p: 3,
-                height: 65,
-                marginTop: "60px",
+                gap: "20px",
               }}
             >
-              <Box sx={{ display: "flex", alignItems: "center" }}>
-                <Avatar
-                  alt={
-                    selectedUser.UserID
-                      ? selectedUser.Username
-                      : selectedUser.GroupName
-                  }
-                  src={selectedUser.ProfilePicture || undefined}
-                  sx={{ mr: 2 }}
-                />
+              <Box
+                sx={{
+                  position: "relative",
+                  alignItems: "center",
+                  marginTop: "1%",
+                }}
+              >
+                <Box sx={{}}>
+                  <Box sx={{ position: "relative" }}>
+                    <Avatar
+                      alt={
+                        selectedUser.UserID
+                          ? selectedUser.Username
+                          : selectedUser.GroupName
+                      }
+                      src={selectedUser.ProfilePicture || undefined}
+                      sx={{ width: "56px", height: "56px" }}
+                    />
+                  </Box>
+                  {selectedUser?.isActive ? (
+                    <Box
+                      sx={{
+                        position: "absolute",
+                        bottom: "2%",
+                        right: 0,
+                        width: 10,
+                        height: 10,
+                        borderRadius: 5,
+                        bgcolor: "rgba(23, 178, 106, 1)",
+                        border: "1.5px solid rgba(255, 255, 255, 1)",
+                      }}
+                    />
+                  ) : (
+                    <Box
+                      sx={{
+                        position: "absolute",
+                        bottom: "2%",
+                        right: 0,
+                        width: 10,
+                        height: 10,
+                        borderRadius: 5,
+                        bgcolor: "rgba(208, 213, 221, 1)",
+
+                        border: "1.5px solid rgba(255, 255, 255, 1)",
+                      }}
+                    />
+                  )}
+                </Box>
+                {/* {selectedUser.isActive && ( */}
+              </Box>
+              <Box>
+                {/* )} */}
                 <Typography variant="h6" color="black">
                   {headerTitle
                     ? headerTitle
@@ -568,61 +517,202 @@ const Header: React.FC<HeaderProps> = ({ selectedUser, onGroupCreate }) => {
                     ? selectedUser.Username
                     : selectedUser.GroupName}
                 </Typography>
+                <span
+                  style={{
+                    // position: "absolute",
+                    //marginLeft: "10px",
+                    // top: "17%",
+                    // left: "36%",
+                    width: "49px",
+                    height: "22px",
+                    borderRadius: "10%",
+                    border: "1px solid #ccc",
+                    textAlign: "center",
+                    padding: "2px 6px 2px 6px",
+                  }}
+                >
+                  online
+                </span>
               </Box>
+            </Box>
+            <AgoraRTCProvider client={rtcClient}>
+              <div>
+                {showCallPopup && (
+                  <CallPopup
+                    incomingCall={incomingCall!}
+                    caller={callerdetail}
+                    onAccept={handleCallAccepted}
+                    onReject={rejectCall}
+                  />
+                )}
 
-              <AgoraRTCProvider client={rtcClient}>
-                <div>
-                  <IconButton onClick={startCall}>
-                    <CallIcon />
-                  </IconButton>
+                {callAccepted && channelName && token && (
+                  <div>
+                    <AgoraClient channelName={channelName} token={token} />
 
-                  {showCallPopup && (
-                    <CallPopup
-                      incomingCall={incomingCall!}
-                      caller={callerdetail}
-                      onAccept={handleCallAccepted}
-                      onReject={rejectCall}
-                    />
-                  )}
-
-                  {callAccepted && channelName && token && (
-                    <div>
-                      <AgoraClient channelName={channelName} token={token} />
-
-                      <Box
-                        sx={{
-                          display: "flex",
-                          flexDirection: "row",
-                          alignItems: "center",
-                          gap: 3, // You can adjust the gap value as needed
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: "row",
+                        alignItems: "center",
+                        gap: 3, // You can adjust the gap value as needed
+                      }}
+                    >
+                      <div>Call Duration: {formatTime(callDuration)}</div>
+                      <IconButton
+                        onClick={() => endCall()} // Your function to end the call
+                        style={{
+                          backgroundColor: "red",
+                          color: "white",
+                          marginBottom: "20px",
                         }}
                       >
-                        <div>Call Duration: {formatTime(callDuration)}</div>
-                        <IconButton
-                          onClick={() => endCall()} // Your function to end the call
-                          style={{
-                            backgroundColor: "red",
-                            color: "white",
-                            marginBottom: "20px",
-                          }}
-                        >
-                          <CallEndIcon />
-                        </IconButton>
-                      </Box>
-                    </div>
-                  )}
-                </div>
-              </AgoraRTCProvider>
-
+                        <CallEndIcon />
+                      </IconButton>
+                    </Box>
+                  </div>
+                )}
+              </div>
+            </AgoraRTCProvider>
+            {/* <Box sx={{ gap: "10px", display: "flex" }}>
               <IconButton
-                sx={{ marginLeft: "auto", color: "#1976d2" }}
+                sx={{
+                  // marginLeft: "550px",
+                  backgroundImage:
+                    "linear-gradient(180deg, #8548D0 0%, #29BFFF 100%)",
+                  color: "white", // Optionally change the text/icon color if needed
+                  "&:hover": {
+                    backgroundImage:
+                      "linear-gradient(180deg, #29BFFF 0%,  #8548D0 100%)", // Optional hover effect
+                  },
+                }}
+                onClick={startCall}
+              >
+                <CallIcon />
+              </IconButton>
+              <IconButton
+                sx={{
+                  padding: "8px", // Adjust padding for proper size
+                  backgroundImage:
+                    "linear-gradient(180deg, #8548D0 0%, #29BFFF 100%)",
+                  color: "white", // Ensure icon color is visible against the gradient
+                  borderRadius: "50%", // Make the background round
+                  "&:hover": {
+                    backgroundImage:
+                      "linear-gradient(180deg, #29BFFF 0%,  #8548D0 100%)", // Optional hover effect
+                  },
+                }}
                 onClick={handleVideoClick}
               >
-                <VideocamIcon sx={{ fontSize: 30, color: "black" }} />
+                <VideocamIcon sx={{ fontSize: 25 }} />
               </IconButton>
 
-              <IconButton sx={{ color: "black" }} onClick={handlePopoverOpen}>
-                <GroupIcon />
+              <IconButton
+                sx={{
+                  padding: "8px", // Adjust padding for proper size
+                  backgroundImage:
+                    "linear-gradient(180deg, #8548D0 0%, #29BFFF 100%)",
+                  color: "white", // Ensure icon color is visible against the gradient
+                  borderRadius: "50%", // Make the background round
+                  "&:hover": {
+                    backgroundImage:
+                      "linear-gradient(180deg, #29BFFF 0%,  #8548D0 100%)", // Optional hover effect
+                  },
+                }}
+                onClick={handlePopoverOpen}
+              >
+                <PersonAddAltIcon sx={{ fontSize: 25 }} />
+              </IconButton>
+
+              <IconButton
+                sx={{
+                  backgroundImage:
+                    "linear-gradient(180deg, #8548D0 0%, #29BFFF 100%)",
+                  color: "white", // Change the text color if needed
+                  "&:hover": {
+                    backgroundImage:
+                      "linear-gradient(180deg, #29BFFF 0%,  #8548D0 100%)", // Optional hover effect
+                  },
+                }}
+              >
+                <MoreVertOutlinedIcon
+                  sx={{
+                    backgroundImage:
+                      "linear-gradient(180deg, #8548D0 0%, #29BFFF 100%)",
+                    "&:hover": {
+                      backgroundImage:
+                        "linear-gradient(180deg, #29BFFF 0%,  #8548D0 100%)", // Optional hover effect
+                    },
+                  }}
+                />
+              </IconButton>
+            </Box> */}
+
+            <Box sx={{ gap: "10px", display: "flex" }}>
+              <IconButton
+                sx={{
+                  backgroundColor: "white", // Changed to white for the icon color
+                  color: "#8548D0", // Changed to the original background color
+                  border: "2px solid #8548D0",
+                  "&:hover": {
+                    backgroundImage:
+                      "linear-gradient(180deg, #8548D0 0%, #29BFFF 100%)", // Optional hover effect
+                    color: "white", // Ensure text color is visible
+                    border: "2px solid white",
+                  },
+                }}
+                onClick={startCall}
+              >
+                <CallIcon />
+              </IconButton>
+
+              <IconButton
+                sx={{
+                  padding: "8px", // Adjust padding for proper size
+                  backgroundColor: "white", // Changed to white for the icon color
+                  color: "#8548D0", // Changed to the original background color
+                  borderRadius: "50%", // Make the background round
+                  border: "2px solid #8548D0",
+                  "&:hover": {
+                    backgroundImage:
+                      "linear-gradient(180deg, #8548D0 0%, #29BFFF 100%)", // Optional hover effect
+                    color: "white", // Ensure text color is visible
+                    border: "2px solid white",
+                  },
+                }}
+                onClick={handleVideoClick}
+              >
+                <VideocamIcon sx={{ fontSize: 25 }} />
+              </IconButton>
+
+              <IconButton
+                sx={{
+                  padding: "8px", // Adjust padding for proper size
+                  backgroundColor: "white", // Changed to white for the icon color
+                  color: "#8548D0", // Changed to the original background color
+                  borderRadius: "50%", // Make the background round
+
+                  border: "2px solid #8548D0",
+                  "&:hover": {
+                    backgroundImage:
+                      "linear-gradient(180deg, #8548D0 0%, #29BFFF 100%)", // Optional hover effect
+                    color: "white", // Ensure text color is visible
+                    border: "2px solid white",
+                  },
+                }}
+                onClick={handlePopoverOpen}
+              >
+                <PersonAddAltIcon sx={{ fontSize: 25 }} />
+              </IconButton>
+
+              <IconButton>
+                <MoreVertOutlinedIcon
+                  sx={{
+                    color: "black",
+                    width: "30px", // Adjust width as needed
+                    height: "30px",
+                  }}
+                />
               </IconButton>
             </Box>
 
@@ -684,14 +774,17 @@ const Header: React.FC<HeaderProps> = ({ selectedUser, onGroupCreate }) => {
                   </Button>
                 </Box>
               ) : (
-                <Box sx={{ padding: 2 }}>
-                  <Typography>People({groupMembers.length})</Typography>
+                <Box sx={{ width: "200px" }}>
+                  <Typography sx={{ padding: "10px" }}>
+                    People({groupMembers.length})
+                  </Typography>
 
-                  <List style={{ width: "250px" }}>
+                  <List>
                     {groupMembers.map((member) => (
                       <ListItem
                         key={member.UserID}
                         sx={{
+                          height: "50px",
                           "&:hover": {
                             backgroundColor: "#f0f0f0", // Change to your desired hover color
                             cursor: "pointer",
@@ -702,7 +795,9 @@ const Header: React.FC<HeaderProps> = ({ selectedUser, onGroupCreate }) => {
                       >
                         <ListItemAvatar>
                           <Avatar>
-                            <FolderIcon />
+                            <FolderIcon
+                              sx={{ width: "20px", height: "20px" }}
+                            />
                           </Avatar>
                         </ListItemAvatar>
                         {/* <ListItemIcon>
@@ -807,71 +902,9 @@ const Header: React.FC<HeaderProps> = ({ selectedUser, onGroupCreate }) => {
                 </Box>
               )}
             </Popover>
-
-            {/* Child Popover */}
-            <Popover
-              open={openChild}
-              anchorEl={childAnchorEl}
-              onClose={handleChildClose}
-              anchorOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
-            >
-              <Box sx={{ p: 2, width: 300 }}>
-                <Typography variant="h6" gutterBottom>
-                  Add Username
-                </Typography>
-                {/* <TextField
-                  fullWidth
-                  label="Username"
-                  type="text"
-                  value={query}
-                  onChange={handleEmailChange}
-                />
-                {suggestionsVisible && (
-                  <Suggestions
-                    suggestions={suggestions}
-                    onSelect={handleSelectUser}
-                  />
-                )} */}
-
-                <Search>
-                  <SearchIconWrapper>
-                    <SearchIcon />
-                  </SearchIconWrapper>
-                  <StyledInputBase
-                    placeholder="Search…"
-                    inputProps={{ "aria-label": "search" }}
-                    onChange={handleEmailChange}
-                    value={query}
-                  />
-                  {suggestionsVisible && (
-                    <Suggestions
-                      suggestions={suggestions}
-                      onSelect={handleSelectUser}
-                    />
-                  )}
-                </Search>
-
-                <Stack
-                  direction="row"
-                  spacing={2}
-                  justifyContent="flex-end"
-                  sx={{ mt: 2 }}
-                >
-                  <Button variant="outlined" onClick={handleChildClose}>
-                    Cancel
-                  </Button>
-                  <Button variant="contained" onClick={handleAddClick}>
-                    Add
-                  </Button>
-                </Stack>
-              </Box>
-            </Popover>
           </Box>
         ) : (
-          <Typography variant="h5" sx={{ p: 2, mt: 20 }}></Typography>
+          <Typography variant="h5" sx={{ p: 2 }}></Typography>
         )}
       </Box>
     </>

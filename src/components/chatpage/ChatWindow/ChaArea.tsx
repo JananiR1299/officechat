@@ -86,19 +86,26 @@ const ChatArea: React.FC<ChatAreaProps> = ({ userDetails }) => {
   }, [userDetails]);
   return (
     <>
-      <Box sx={{ display: "flex", flexDirection: "column", height: "89vh" }}>
+      <Box sx={{ display: "flex", flexDirection: "column" }}>
         <Header
           Title={headerTitle}
           selectedUser={selectedUser || userDetails}
           onGroupCreate={handleGroupCreate}
         />
         {loading ? (
-          <Typography
-            variant="body1"
-            sx={{ p: 2, textAlign: "center", mb: "150px" }}
-          >
-            Loading...
-          </Typography>
+          <Box sx={{ height: "320px" }}>
+            <Typography
+              variant="body1"
+              sx={{
+                height: "320px",
+                display: "flex", // Use flexbox
+                justifyContent: "center", // Center horizontally
+                alignItems: "center", // Center vertically
+              }}
+            >
+              Loading...
+            </Typography>
+          </Box>
         ) : (
           <ChatComponent
             userDetails={selectedUser || userDetails}

@@ -176,14 +176,19 @@ const LoginForm: React.FC = () => {
           PasswordHash: password,
         }
       );
+      if (response.data && response.data.userDetails) {
+        const userDetails = {
+          userdata: response.data.userDetails,
+        };
 
-      const userDetails = {
-        userdata: response.data.userDetails,
-      };
+        setUser(userDetails);
+        localStorage.setItem("user", JSON.stringify(userDetails.userdata));
 
-      setUser(userDetails);
-      socket.emit("login", userDetails.userdata.UserID);
-      navigate("/chatpage", { state: { userDetails } });
+        socket.emit("login", userDetails.userdata.UserID);
+        navigate("/chatpage", { state: { userDetails } });
+      } else {
+        setError("Login failed. Please try again.");
+      }
     } catch (err: any) {
       if (err.response) {
         setError(err.response.data.message);

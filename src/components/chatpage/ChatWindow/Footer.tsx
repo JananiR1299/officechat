@@ -6,20 +6,17 @@ import React, {
   MouseEvent,
 } from "react";
 import {
-  Box,
+  Grid,
   TextField,
   Button,
   Container,
   IconButton,
   Menu,
   MenuItem,
-  Tooltip,
-  List,
-  ListItemText,
+  Box,
 } from "@mui/material";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import SendIcon from "@mui/icons-material/Send";
-import CloseIcon from "@mui/icons-material/Close";
 import { useUser } from "../../context/UserContext";
 import io, { Socket } from "socket.io-client";
 import { Message } from "./messagetypes";
@@ -32,17 +29,15 @@ interface FooterProps {
 const socket: Socket = io(process.env.REACT_APP_SOCKET_URL);
 
 const Footer: React.FC<FooterProps> = ({ userDetails, setMessageList }) => {
-  console.log(process.env.REACT_APP_SOCKET_URL);
   const [currentMessage, setcurrentMessage] = useState("");
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [filePreview, setFilePreview] = useState<string | null>(null);
-  const [showFileList, setShowFileList] = useState(false);
+
   const { user } = useUser();
 
   const handleClick = (event: MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
-    setShowFileList(!showFileList);
   };
 
   const handleClose = () => {
@@ -63,7 +58,6 @@ const Footer: React.FC<FooterProps> = ({ userDetails, setMessageList }) => {
       } else {
         setFilePreview(null);
       }
-      setShowFileList(false);
     }
   };
 
@@ -79,55 +73,39 @@ const Footer: React.FC<FooterProps> = ({ userDetails, setMessageList }) => {
   };
 
   const sendMessage = async () => {
-    const currentTime = new Date().toISOString();
-    let fileData;
+    const currentTime = new Date();
+    let formData = {};
 
     if (selectedFile) {
       const base64File = await fileToBase64(selectedFile);
       const fileBlob = base64File.split(",")[1];
 
-      fileData = {
+      formData = {
         fileBlob,
         filename: selectedFile.name,
         filetype: selectedFile.type,
         filesize: selectedFile.size,
       };
-
       setSelectedFile(null);
       setFilePreview(null);
     }
-
     console.log("userDetails userid", user?.userdata?.UserID);
-
-    const messageData: Message = {
-      author: user?.userdata?.UserName || "Unknown",
+    const messageData = {
+      author: user?.userdata?.UserName,
       receiverID: userDetails.UserID ? userDetails.UserID : undefined,
       groupID: userDetails.GroupID ? userDetails.GroupID : undefined,
-      SenderID: user?.userdata?.UserID ? user?.userdata?.UserID : undefined,
+      SenderID: user?.userdata?.UserID,
       Content: currentMessage ? currentMessage : selectedFile.name,
       SentAt: currentTime,
       IsDeleted: false,
       IsPinned: false,
       isGroupChat: userDetails.GroupID ? true : false,
-      fileData: fileData,
-      file: undefined,
+      file: formData,
     };
-
     if (currentMessage || selectedFile) {
       socket.emit("send_message", messageData);
       console.log("messageData", messageData);
-
-      // Update the messageList state immediately after sending the message
-      // setMessageList((prevList) => {
-      //   // console.log("Previous List:", prevList);
-      //   const updatedList = [...prevList, messageData];
-      //   // console.log("Updated List:", updatedList);
-      //   return updatedList;
-      // });
-
-      // Optionally update the local state immediately to show the sent message
-      setMessageList((prevList) => [...prevList, messageData]);
-      setcurrentMessage(""); // Clear the input after sending
+      setcurrentMessage("");
     }
   };
 
@@ -141,162 +119,98 @@ const Footer: React.FC<FooterProps> = ({ userDetails, setMessageList }) => {
 
     const handleMessageReceive = (data) => {
       console.log("Message received on client:", data);
-      // setMessageList((list) => [...list, data]);
+      setMessageList((list) => [...list, data]);
     };
     socket.on("receive_message", handleMessageReceive);
     return () => {
       socket.off("receive_message", handleMessageReceive);
     };
-  }, [userDetails]);
+  }, [userDetails.UserID, setMessageList]);
 
   return (
-    <Container sx={{ mt: "auto" }}>
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "left",
-          p: 2,
-          borderTop: 1,
-          borderColor: "divider",
-          position: "fixed",
-          width: "70%",
-          bottom: "20px",
-          // marginBottom: "20px",
-        }}
-      >
-        <Box sx={{ position: "relative", flexGrow: 1 }}>
-          <TextField
-            fullWidth
-            variant="outlined"
-            value={currentMessage}
-            placeholder="Type a message.."
-            onChange={(event: ChangeEvent<HTMLInputElement>) => {
-              setcurrentMessage(event.target.value);
-            }}
-            onKeyPress={(event: KeyboardEvent<HTMLInputElement>) => {
-              if (event.key === "Enter") {
-                sendMessage();
-              }
-            }}
-            InputProps={{
-              endAdornment: selectedFile ? (
-                <Tooltip title="Remove file">
-                  <IconButton
-                    edge="end"
-                    onClick={() => {
-                      setSelectedFile(null);
-                      setFilePreview(null);
-                    }}
-                    sx={{ p: 0.5 }}
-                  >
-                    <CloseIcon />
-                  </IconButton>
-                </Tooltip>
-              ) : null,
-              sx: {
-                borderRadius: "8px",
-                height: "85px",
-              },
-            }}
-          />
-          {filePreview && (
-            <Box
-              sx={{
-                position: "absolute",
-                top: "50%",
-                left: "10px",
-                transform: "translateY(-50%)",
-                display: "flex",
-                alignItems: "center",
-                pointerEvents: "none", // Allows clicks to pass through the preview
-              }}
-            >
-              <img
-                src={filePreview}
-                alt="File Preview"
-                style={{
-                  maxWidth: "100px",
-                  maxHeight: "50px",
-                  borderRadius: "4px",
-                  marginRight: "10px",
-                }}
-              />
-            </Box>
-          )}
-        </Box>
-        <IconButton
-          onClick={sendMessage}
-          style={{ marginLeft: "5px", color: "black" }}
-        >
-          <SendIcon />
-        </IconButton>
-        {/* <IconButton onClick={handleClick}>
-          <AttachFileIcon />
-        </IconButton>
-        <Menu
-          anchorEl={anchorEl}
-          open={Boolean(anchorEl)}
-          onClose={handleClose}
-        >
-          <MenuItem>
-            <input
-              type="file"
-              onChange={handleFileChange}
-              style={{ display: "none" }}
-              id="upload-file"
-            />
-            <label htmlFor="upload-file">
-              <Button component="span" variant="outlined" color="primary">
-                Select File
-              </Button>
-            </label>
-          </MenuItem>
-          <MenuItem>
-            <Button variant="outlined" color="primary">
-              Attach Cloud Files
-            </Button>
-          </MenuItem>
-        </Menu> */}
-
+    <Container>
+      <Grid item>
         <Box>
-          <IconButton onClick={handleClick} sx={{ color: "black" }}>
-            <AttachFileIcon />
-          </IconButton>
-
-          {showFileList && (
-            <List
-              sx={{
-                width: "250px",
-                backgroundColor: "#f9f9f9",
-                borderRadius: "8px",
-                padding: "10px",
-                position: "absolute",
-                bottom: "50px",
-                right: "20px",
-                boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+          <Box>
+            <TextField
+              fullWidth
+              variant="outlined"
+              value={currentMessage}
+              placeholder="Send a message"
+              onChange={(event: ChangeEvent<HTMLInputElement>) => {
+                setcurrentMessage(event.target.value);
               }}
-            >
-              <label htmlFor="upload-file">
-                <ListItemText
-                  primary="Select File"
-                  sx={{
-                    "&:hover": {
-                      backgroundColor: "#f0f0f0",
-                      cursor: "pointer",
-                    },
-                  }}
-                />
-                <input
-                  type="file"
-                  onChange={handleFileChange}
-                  style={{ display: "none" }}
-                  id="upload-file"
-                />
-              </label>
-            </List>
-          )}
+              onKeyPress={(event: KeyboardEvent<HTMLInputElement>) => {
+                if (event.key === "Enter") {
+                  sendMessage();
+                }
+              }}
+              InputProps={{
+                endAdornment: (
+                  <Box>
+                    <Box sx={{ position: "relative", height: "104px" }}>
+                      <Box
+                        sx={{
+                          position: "absolute",
+                          display: "flex",
+                          bottom: 6,
+                          right: 0,
+                        }}
+                      >
+                        <IconButton onClick={handleClick}>
+                          <AttachFileIcon sx={{ transform: "rotate(45deg)" }} />
+                        </IconButton>
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          onClick={sendMessage}
+                          sx={{
+                            backgroundColor: "#0074d9",
+                            borderRadius: "8px",
+                          }}
+                          // endIcon={<SendIcon />}
+                        >
+                          Send
+                        </Button>
+                      </Box>
+                    </Box>
+                    <Box>
+                      <Menu
+                        anchorEl={anchorEl}
+                        open={Boolean(anchorEl)}
+                        onClose={handleClose}
+                      >
+                        <MenuItem>
+                          <input
+                            type="file"
+                            onChange={handleFileChange}
+                            style={{ display: "none" }}
+                            id="upload-file"
+                          />
+                          <label htmlFor="upload-file">
+                            <Button
+                              component="span"
+                              variant="outlined"
+                              color="primary"
+                            >
+                              Select File
+                            </Button>
+                          </label>
+                        </MenuItem>
+                        <MenuItem>
+                          <Button variant="outlined" color="primary">
+                            Attach Cloud Files
+                          </Button>
+                        </MenuItem>
+                      </Menu>
+                    </Box>
+                  </Box>
+                ),
+              }}
+            />
+          </Box>
         </Box>
-      </Box>
+      </Grid>
     </Container>
   );
 };

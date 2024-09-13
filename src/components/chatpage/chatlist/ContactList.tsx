@@ -1,16 +1,22 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import {
-  List,
+  Grid,
   ListItem,
   ListItemAvatar,
   ListItemText,
   Typography,
   Avatar,
   Box,
+  Button,
+  ButtonGroup,
+  Container,
 } from "@mui/material";
-import { useUser } from "../../context/UserContext";
 import io from "socket.io-client";
+import { styled, alpha } from "@mui/material/styles";
+import SearchIcon from "@mui/icons-material/Search";
+import { InputBase, Tabs, Tab } from "@mui/material";
+import { useUser } from "../../context/UserContext";
 
 interface Contact {
   id: number;
@@ -19,69 +25,140 @@ interface Contact {
   isActive: boolean;
   UserID: number;
   Username: string;
-  ProfilePicture: string; // Ensure this matches User's property type
+  ProfilePicture: string;
+  GroupID?: number;
+  GroupName?: string;
+  GroupAvatar?: string;
+  isGroupChat?: boolean;
+  lastMessage?: string;
+  lastMessageTime?: string;
+  greenDot?: boolean;
 }
 
 interface ContactListProps {
   onSelectUser: (user: Contact) => void;
 }
 
-const socket = io(process.env.REACT_APP_SOCKET_URL);
-console.log(socket);
+const Search = styled("div")(({ theme }) => ({
+  position: "relative",
+  zIndex: 1300,
+  borderRadius: theme.shape.borderRadius,
+  backgroundColor: alpha(theme.palette.common.white, 0.15),
+  "&:hover": {
+    backgroundColor: alpha(theme.palette.common.white, 0.25),
+  },
+  color: "rgba(102, 112, 133, 1)",
+  fontSize: "16px",
+  lineHeight: "24px",
+  fontWeight: "400",
+  width: "100%",
+  height: "44px",
+}));
 
-const ContactList: React.FC<ContactListProps> = ({ onSelectUser }: any) => {
-  // const [Group, setGroup] = useState();
+const SearchIconWrapper = styled("div")(({ theme }) => ({
+  padding: theme.spacing(0, 2),
+  height: "44px",
+  position: "absolute",
+  pointerEvents: "none",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  // border: "1.67px solid rgba(102, 112, 133, 1)",
+}));
+
+const StyledInputBase = styled(InputBase)(({ theme }) => ({
+  color: "inherit",
+  "& .MuiInputBase-input": {
+    padding: theme.spacing(1, 1, 1, 0),
+    paddingLeft: `calc(1em + ${theme.spacing(3)})`,
+    transition: theme.transitions.create("width"),
+    // width: "250px",
+    border: "1px solid rgba(208, 213, 221, 1)",
+    borderRadius: "8px",
+  },
+}));
+
+const socket = io(process.env.REACT_APP_SOCKET_URL);
+
+const ContactList: React.FC<ContactListProps> = ({ onSelectUser }) => {
   const { user, groups, setGroups } = useUser();
   const [, setError] = useState<string | null>(null);
   const [loggedInUsers, setLoggedInUsers] = useState<any[]>([]);
-  // const [activeGroup, setActiveGroup] = useState<number | null>(null);
+  const [showMessages, setShowMessages] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchSuggestions, setSearchSuggestions] = useState<Contact[]>([]);
+  const [suggestionsVisible, setSuggestionsVisible] = useState(false);
+
   const {
     activeGroup,
     setActiveGroup,
     activeUser,
     setActiveUser,
-    // selectedUserId,
     setSelectedUserId,
     Contact,
     setContact,
   } = useUser();
 
+  // const handleSelectUser = (user: Contact) => {
+  //   setActiveUser(user.UserID);
+  //   onSelectUser(user);
+  //   setSuggestionsVisible(false);
+  // };
+
+  const fetchSearchSuggestions = async (searchQuery: string) => {
+    try {
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_URL}/api/usernamesugggestions`,
+        { params: { query: searchQuery } }
+      );
+      setSearchSuggestions(response.data);
+      setSuggestionsVisible(true);
+    } catch (error) {
+      console.error("Error fetching suggestions:", error);
+    }
+  };
+
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const searchValue = event.target.value;
+    setSearchTerm(searchValue);
+
+    if (searchValue) {
+      fetchSearchSuggestions(searchValue);
+    } else {
+      setSearchSuggestions([]);
+      setSuggestionsVisible(false);
+    }
+  };
+
   useEffect(() => {
-    console.log("groupsgroups", groups);
-    // if (selectedUserId) {
     axios
       .get(
         `${process.env.REACT_APP_API_URL}/api/users/${user?.userdata?.UserID}`
       )
       .then((response) => {
-        const users = response.data;
-        console.log("contact", users);
-
-        setContact(response.data);
-        if (response.data.length > 0) {
-          // Automatically select the first user
-          const firstUser = response.data[0];
+        const users = response.data.map((user: Contact) => ({
+          ...user,
+          lastMessage: user.lastMessage || "No messages yet",
+          lastMessageTime: user.lastMessageTime || new Date().toISOString(),
+        }));
+        console.log("usersu", users);
+        setContact(users);
+        if (users.length > 0) {
+          const firstUser = users[0];
           setActiveUser(firstUser.UserID);
-
-          //     // Any other logic that should be memoized
-          setSelectedUserId(firstUser.UserID); // Set first user as active
-          onSelectUser(firstUser); // Pass the first user to parent component
+          setSelectedUserId(firstUser.UserID);
+          onSelectUser(firstUser);
         }
       })
       .catch((error) => {
         setError(error.message);
       });
-    // }
   }, [user?.userdata?.UserID, setContact]);
-
-  // }, [user?.userdata?.UserID, setContact, onSelectUser, handleSetActiveUser]);
-  // for groups
 
   useEffect(() => {
     axios
       .get(`${process.env.REACT_APP_API_URL}/api/grouplist`)
       .then((response) => {
-        // console.log("Goruplist", response.data);
         setGroups(response.data);
       })
       .catch((error) => {
@@ -101,16 +178,13 @@ const ContactList: React.FC<ContactListProps> = ({ onSelectUser }: any) => {
         );
 
         setLoggedInUsers(response.data);
-      }, 5000); // Send every 5 seconds
+      }, 5000);
 
-      return () => clearInterval(interval); // Clean up on unmount
+      return () => clearInterval(interval);
     }
-  }, [
-    setLoggedInUsers,
-    // user?.userdata?.UserID,
-  ]);
+  }, [setLoggedInUsers]);
+
   useEffect(() => {
-    // console.log(loggedInUsers);
     const updatedArray = Contact.map((item) => ({
       ...item,
       isActive: loggedInUsers.includes(item.UserID) ? true : false,
@@ -120,215 +194,399 @@ const ContactList: React.FC<ContactListProps> = ({ onSelectUser }: any) => {
     }
   }, [loggedInUsers, Contact, setContact]);
 
-  const handleContactClick = (userid: number) => {
-    console.log(userid);
-    setSelectedUserId(userid);
-    setActiveUser(userid); // Set active contact
+  const handleContactClick = (user: any) => {
+    onSelectUser(user);
+    setSelectedUserId(user.UserID);
+    setActiveUser(user.UserID);
     setActiveGroup(null);
   };
-  const handlegroupActive = (groupid: any) => {
-    setActiveGroup(groupid);
+
+  const handleGroupClick = (group: any) => {
+    // alert(groupid);
+    onSelectUser(group);
+    setActiveGroup(group.GroupID);
     setActiveUser(null);
-    onSelectUser(groupid);
   };
+
+  useEffect(() => {
+    socket.on("newMessage", (message) => {
+      setContact((prevContacts) =>
+        prevContacts.map((contact) =>
+          contact.UserID === message.senderId
+            ? {
+                ...contact,
+                lastMessage: message.text,
+                lastMessageTime: new Date().toISOString(),
+              }
+            : contact
+        )
+      );
+    });
+
+    return () => {
+      socket.off("newMessage");
+    };
+  }, [socket, setContact]);
+
   return (
     <Box
       sx={{
-        width: "400px",
-        bgcolor: "#dbd5d1",
-        display: "flex",
-        flexDirection: "column",
-        border: "1px solid #bdbdbd",
-        marginTop: "60px",
+        p: 0,
+        width: "35%",
+        borderRight: "1px solid rgba(234, 236, 240, 1)",
       }}
     >
-      {" "}
-      {/* Ensure full height */}
-      <Typography
-        variant="h6"
-        sx={{
-          p: 2,
-          bgcolor: "#ebebeb40",
-          color: "black",
-          borderBottom: "2px solid #80808021",
-          fontWeight: "bold",
-          fontFamily:
-            "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen','Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif",
-        }}
-      >
-        Chat
-      </Typography>
-      {Contact && Contact.length > 0 ? (
-        <List
-          sx={{
-            flexGrow: 1,
-            overflow: "auto",
-            height: "250px",
-            "&::-webkit-scrollbar": {
-              width: "0",
-              transition: "width 0.3s ease",
-            },
-            "&:hover::-webkit-scrollbar": {
-              width: "6px",
-            },
-            "&::-webkit-scrollbar-thumb": {
-              backgroundColor: "#888",
-              borderRadius: "10px",
-            },
-            "&::-webkit-scrollbar-thumb:hover": {
-              backgroundColor: "#555",
-            },
-          }}
-        >
-          {" "}
-          {/* Allow list to scroll */}
-          {Contact.map((item) => {
-            // const Status = userStatus.find(
-            //   (Status: any) => Status.UserID === item.UserID
-            // );
-
-            return (
-              <ListItem
-                button
-                key={item.UserID}
-                onClick={() => {
-                  onSelectUser(item);
-                  handleContactClick(item.UserID);
-                }}
-                sx={{
-                  bgcolor: activeUser === item.UserID ? "#999da259" : "inherit", // Change background for active group
-                }}
-              >
-                <ListItemAvatar>
-                  <Box sx={{ position: "relative" }}>
-                    <Avatar
-                      alt={item.Username}
-                      src={item.ProfilePicture}
-                      sx={{
-                        width: 45,
-                        height: 45,
-                        borderRadius: "50%",
-                        // border: item.Status ? "2px solid #4caf50" : "none",
-                        position: "relative",
-                      }}
-                    />
-                    {item.isActive && (
-                      <Box
-                        sx={{
-                          position: "absolute",
-                          bottom: 0,
-                          right: 7,
-                          width: 16,
-                          height: 16,
-                          borderRadius: "50%",
-                          bgcolor: "#4caf50",
-                          border: "2px solid white",
-                        }}
-                      />
-                    )}
-                  </Box>
-                </ListItemAvatar>
-                <ListItemText
-                  primary={item.Username}
-                  secondary={
-                    <Typography variant="body2" color="textSecondary">
-                      Click here to chat
-                    </Typography>
-                  }
-                />
-              </ListItem>
-            );
-          })}
-        </List>
-      ) : (
-        <List sx={{ flexGrow: 1, height: "327px", overflow: "auto" }}>
-          <Typography
-            variant="body2"
-            color="textSecondary"
-            style={{ fontStyle: "Italic", textAlign: "center" }}
-          >
-            Search a New User
-          </Typography>
-        </List>
-      )}
-      <Typography
-        variant="h6"
-        sx={{
-          p: 2,
-          bgcolor: "#ebebeb40",
-          color: "black",
-          borderBottom: "2px solid #80808021",
-          fontWeight: "bold",
-          fontFamily:
-            "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen','Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif",
-        }}
-      >
-        Groups
-      </Typography>
-      {groups && groups.length > 0 ? (
-        <List
-          sx={{
-            flexGrow: 1,
-            overflow: "auto",
-            height: "250px",
-            "&::-webkit-scrollbar": {
-              width: "0",
-              transition: "width 0.3s ease",
-            },
-            "&:hover::-webkit-scrollbar": {
-              width: "6px",
-            },
-            "&::-webkit-scrollbar-thumb": {
-              backgroundColor: "#888",
-              borderRadius: "10px",
-            },
-            "&::-webkit-scrollbar-thumb:hover": {
-              backgroundColor: "#555",
-            },
-          }}
-        >
-          {" "}
-          {/* Allow list to scroll */}
-          {groups.map((item: any) => (
-            <ListItem
-              button
-              key={item.GroupID}
-              onClick={() => {
-                onSelectUser(item);
-                handlegroupActive(item.GroupID);
-              }}
+      <Grid>
+        <Box>
+          <Box sx={{}}>
+            <Box
               sx={{
-                backgroundColor:
-                  activeGroup === item.GroupID
-                    ? "#999da259" // Change background color for active group (with slight transparency)
-                    : "inherit", // No change for non-active group // Change background for active group
+                display: "flex",
+                alignItems: "center", // Aligns items vertically in the center
+                // gap: "2px", // Adjust gap between text and number if needed
               }}
             >
-              <ListItemAvatar>
-                <Avatar alt={item.GroupName} />
-              </ListItemAvatar>
-              <ListItemText
-                primary={item.GroupName}
-                secondary={
-                  <Typography variant="body2" color="textSecondary">
-                    Some Text to write
-                  </Typography>
-                }
-              />
-            </ListItem>
-          ))}
-        </List>
-      ) : (
-        <List sx={{ flexGrow: 1, height: "327px", overflow: "auto" }}>
-          <Typography
-            variant="body2"
-            color="textSecondary"
-            style={{ fontStyle: "Italic", textAlign: "center" }}
-          >
-            Create a New group
-          </Typography>
-        </List>
-      )}
+              <Typography
+                variant="h6"
+                sx={{
+                  p: 2,
+                  // bgcolor: "#ebebeb40",
+                  color: "#101828",
+
+                  // borderBottom: "2px solid #80808021",
+                  fontWeight: 600,
+                  fontSize: "18px",
+                  lineHeight: "28px",
+                }}
+              >
+                Messages
+              </Typography>
+              <Box>
+                <Typography
+                  sx={{
+                    background: "#FFFFFF",
+                    // width: "28px",
+                    // height: "22px",
+                    padding: "2px 3px",
+                    // gap: "0px",
+                    borderRadius: "6px",
+                    border: "1px solid rgba(208, 213, 221, 1)",
+                    fontSize: "12px", // Adjust to make it look proportionate
+                    fontWeight: 500,
+                    textAlign: "center",
+                    // opacity: 1, // Make sure it's visible
+                    lineHeight: "18px",
+                    color: "rgba(52, 64, 84, 1)",
+                  }}
+                >
+                  40
+                </Typography>
+              </Box>
+            </Box>
+          </Box>
+          <Box>
+            <Box sx={{ mt: 1, mb: 1 }}>
+              <ButtonGroup
+                variant="text"
+                aria-label="text button group"
+                sx={{
+                  width: "90%",
+                  height: "45px",
+                  marginLeft: "20px",
+                  backgroundColor: "#ccc",
+                  display: "flex",
+                  flexDirection: "row",
+                  "& > *": {
+                    flex: 1,
+                    borderRadius: "10px",
+                    paddingBottom: "5px",
+                  },
+                }}
+              >
+                <Button
+                  variant={showMessages ? "contained" : "outlined"}
+                  sx={{
+                    backgroundColor: showMessages ? "white" : "ghostwhite",
+                    color: "black",
+                    borderRadius: "5px",
+                    alignItems: "center",
+                    "&:hover": {
+                      backgroundColor: showMessages ? "white" : "ghostwhite",
+                    },
+                    boxShadow: showMessages
+                      ? "0px 2px 4px rgba(0,0,0,0.2)"
+                      : "none",
+                  }}
+                  onClick={() => setShowMessages(true)}
+                >
+                  Chat
+                </Button>
+                <Button
+                  variant={!showMessages ? "contained" : "outlined"}
+                  sx={{
+                    backgroundColor: !showMessages ? "white" : "ghostwhite",
+                    color: "black",
+                    "&:hover": {
+                      backgroundColor: !showMessages ? "white" : "ghostwhite",
+                    },
+                    boxShadow: !showMessages
+                      ? "0px 2px 4px rgba(0,0,0,0.2)"
+                      : "none",
+                  }}
+                  onClick={() => setShowMessages(false)}
+                >
+                  Groups
+                </Button>
+              </ButtonGroup>
+            </Box>
+          </Box>
+          <Box>
+            <Box sx={{ display: "flex", flexDirection: "row" }}>
+              <Search sx={{ margin: "15px" }}>
+                <SearchIconWrapper>
+                  <SearchIcon />
+                </SearchIconWrapper>
+                <StyledInputBase
+                  sx={{ width: "100%", height: "44px" }}
+                  placeholder="Search…"
+                  value={searchTerm}
+                  onChange={handleSearchChange}
+                  inputProps={{ "aria-label": "search" }}
+                />
+              </Search>
+            </Box>
+          </Box>
+          <Box>
+            {showMessages ? (
+              Contact.filter((contact) =>
+                contact.Username.toLowerCase().includes(
+                  searchTerm.toLowerCase()
+                )
+              ).map((contact) => (
+                <Grid
+                  item
+                  xs={12}
+                  key={contact.UserID}
+                  onClick={() => handleContactClick(contact)}
+                  sx={{ cursor: "pointer" }}
+                >
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      borderBottom: "1px solid #e0e0e0",
+                      padding: "16px",
+                      gap: "16px",
+                      bgcolor:
+                        activeUser === contact.UserID
+                          ? " rgba(226, 241, 255, 1)"
+                          : "white",
+                      "&:hover": {
+                        bgcolor: "rgba(226, 241, 255, 1)",
+                      },
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        position: "relative",
+                        alignItems: "center",
+                        marginTop: "1%",
+                      }}
+                    >
+                      <Box sx={{}}>
+                        <Box sx={{ position: "relative", top: "10%" }}>
+                          <Avatar
+                            alt={contact.Username}
+                            src={contact.ProfilePicture || undefined}
+                            sx={
+                              {
+                                // position: "relative",
+                                // mr: 2,
+                                // width: "60px",
+                                // height: "60px",
+                              }
+                            }
+                          />
+                        </Box>
+                        {contact.isActive ? (
+                          <Box
+                            sx={{
+                              position: "absolute",
+                              bottom: 0,
+                              right: 0,
+                              width: 10,
+                              height: 10,
+                              borderRadius: 5,
+                              bgcolor: "rgba(23, 178, 106, 1)",
+                              border: "1.5px solid rgba(255, 255, 255, 1)",
+                            }}
+                          />
+                        ) : (
+                          <Box
+                            sx={{
+                              position: "absolute",
+                              bottom: 0,
+                              right: 0,
+                              width: 10,
+                              height: 10,
+                              borderRadius: 5,
+                              bgcolor: "rgba(208, 213, 221, 1)",
+
+                              border: "1.5px solid rgba(255, 255, 255, 1)",
+                            }}
+                          />
+                        )}
+                      </Box>
+                    </Box>
+
+                    <Box sx={{ flexGrow: 1 }}>
+                      <Typography
+                        variant="body1"
+                        sx={{
+                          fontWeight: "600",
+                          fontSize: "14px",
+                          lineHeight: "20px",
+                          color: "rgba(52, 64, 84, 1)",
+                        }}
+                      >
+                        {contact.Username}
+                      </Typography>
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          fontWeight: "400",
+                          fontSize: "14px",
+                          lineHeight: "20px",
+                          color: " rgba(71, 84, 103, 1)",
+                        }}
+                      >
+                        {/* {contact.lastMessage || "No message"} */}
+                        Some Text to write
+                      </Typography>
+                    </Box>
+                    {/* {contact.isActive && (
+                        <Typography variant="caption" color="green">
+                          Online
+                        </Typography>
+                      )} */}
+                  </Box>
+                </Grid>
+              ))
+            ) : (
+              <Box
+                sx={{
+                  overflow: "auto",
+                  height: "310px",
+                  "&::-webkit-scrollbar": {
+                    width: "0",
+                    transition: "width 0.3s ease",
+                  },
+                  "&:hover::-webkit-scrollbar": {
+                    width: "6px",
+                  },
+                  "&::-webkit-scrollbar-thumb": {
+                    backgroundColor: "#888",
+                    borderRadius: "10px",
+                  },
+                  "&::-webkit-scrollbar-thumb:hover": {
+                    backgroundColor: "#555",
+                  },
+                }}
+              >
+                {groups
+                  .filter((group) =>
+                    group.GroupName.toLowerCase().includes(
+                      searchTerm.toLowerCase()
+                    )
+                  )
+                  .map((group) => (
+                    <Grid
+                      item
+                      xs={12}
+                      key={group.GroupID}
+                      onClick={() => handleGroupClick(group)}
+                      sx={{ cursor: "pointer" }}
+                    >
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          borderBottom: "1px solid #e0e0e0",
+                          padding: "16px",
+                          gap: "16px",
+                          bgcolor:
+                            activeGroup === group.GroupID
+                              ? " rgba(226, 241, 255, 1)"
+                              : "white",
+                          "&:hover": {
+                            bgcolor: "rgba(226, 241, 255, 1)",
+                          },
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            position: "relative",
+                            alignItems: "center",
+                            marginTop: "1%",
+                          }}
+                        >
+                          <Box sx={{}}>
+                            <Box sx={{ position: "relative", top: "10%" }}>
+                              <Avatar alt={group.GroupName} />
+                            </Box>
+                            <Box
+                            // sx={{
+                            //   position: "absolute",
+                            //   bottom: 0,
+                            //   right: 0,
+                            //   width: 10,
+                            //   height: 10,
+                            //   borderRadius: 5,
+                            //   bgcolor: "rgba(23, 178, 106, 1)",
+                            //   border: "1.5px solid rgba(255, 255, 255, 1)",
+                            // }}
+                            />
+                          </Box>
+                        </Box>
+
+                        <Box sx={{ flexGrow: 1 }}>
+                          <Typography
+                            variant="body1"
+                            sx={{
+                              fontWeight: "600",
+                              fontSize: "14px",
+                              lineHeight: "20px",
+                              color: "rgba(52, 64, 84, 1)",
+                            }}
+                          >
+                            {group.GroupName}
+                          </Typography>
+                          <Typography
+                            variant="caption"
+                            sx={{
+                              fontWeight: "400",
+                              fontSize: "14px",
+                              lineHeight: "20px",
+                              color: " rgba(71, 84, 103, 1)",
+                            }}
+                          >
+                            {/* {contact.lastMessage || "No message"} */}
+                            Some Text to write
+                          </Typography>
+                        </Box>
+                        {/* {contact.isActive && (
+                        <Typography variant="caption" color="green">
+                          Online
+                        </Typography>
+                      )} */}
+                      </Box>
+                    </Grid>
+                  ))}
+              </Box>
+            )}
+          </Box>
+        </Box>
+      </Grid>
     </Box>
   );
 };

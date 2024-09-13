@@ -1,12 +1,16 @@
 import React, { useState } from "react";
-import { FaBell, FaUsers, FaComments } from "react-icons/fa";
+import EqualizerIcon from "@mui/icons-material/Equalizer";
+import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
+import ForumIcon from "@mui/icons-material/Forum";
+import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
+import ArticleIcon from "@mui/icons-material/Article";
+import SettingsIcon from "@mui/icons-material/Settings";
 import {
   Drawer,
   List,
   ListItem,
   ListItemText,
   Box,
-  Toolbar,
   Typography,
   CssBaseline,
   Divider,
@@ -125,10 +129,11 @@ const ActivityContent: React.FC<ActivityContentProps> = ({
 };
 
 interface ChatContentProps {
-  selectedUser: User | null;
+  selectedUser: any | null;
 }
 
 const ChatContent: React.FC<ChatContentProps> = ({ selectedUser }: any) => {
+  console.log("new", selectedUser);
   return (
     <div>
       {selectedUser && <ChatArea userDetails={selectedUser}></ChatArea>}
@@ -207,9 +212,13 @@ const TeamsContent = ({
 };
 
 const menuItems = [
-  { text: "Activity", component: "activity", icon: <FaBell /> },
-  { text: "Chat", component: "chat", icon: <FaComments /> },
-  { text: "Teams", component: "teams", icon: <FaUsers /> },
+  { text: "Dashboard", component: "dashboard", icon: <EqualizerIcon /> },
+  { text: "Chat", component: "chat", icon: <ChatBubbleOutlineIcon /> },
+  // { text: "Group", component: "group", icon: <ForumIcon /> },
+  { text: "Directory", component: "directory", icon: <PersonOutlineIcon /> },
+  { text: "AI", component: "ai", icon: <EqualizerIcon /> },
+  { text: "Reports", component: "reports", icon: <ArticleIcon /> },
+  { text: "Settings", component: "settings", icon: <SettingsIcon /> },
 ];
 
 const drawerWidth = 80;
@@ -226,11 +235,13 @@ const SideMenu: React.FC = () => {
   };
 
   const handleSelectUser = (user: any) => {
+    console.log("selected group", user);
     if (user.GroupID) {
       // If the item has GroupID, it's a group
       setSelectedUser(user);
       setActiveGroup(user.GroupID); // Set the active group
       setActiveUser(null); // Clear active user
+      // onSelectUser(user);
     } else if (user.UserID) {
       // If the item has UserID, it's a user
       setSelectedUser(user);
@@ -245,7 +256,7 @@ const SideMenu: React.FC = () => {
   };
 
   const renderContent = () => {
-    console.log("selectedUser", setActiveUser);
+    console.log("selectedComponent", selectedComponent);
     switch (selectedComponent) {
       case "activity":
         return (
@@ -297,7 +308,7 @@ const SideMenu: React.FC = () => {
         <Box
           sx={{
             overflow: "auto",
-            bgcolor: "#485872",
+            background: "linear-gradient(180deg, #8548D0 0%, #29BFFF 100%)",
             color: "white",
             borderTop: "0.5px solid #dbd5d1",
             height: "calc(100vh - 64px)",
@@ -308,18 +319,64 @@ const SideMenu: React.FC = () => {
               <ListItem
                 button
                 key={index}
-                onClick={() => handleMenuItemClick(item.component)}
+                onClick={
+                  () =>
+                    // selectedComponent === item.component
+                    handleMenuItemClick(item.component)
+                  // : ""
+                }
                 sx={{
                   flexDirection: "column",
                   alignItems: "center",
                   textAlign: "center",
-                  backgroundColor: "transparent", // Highlight active item
+
+                  backgroundColor:
+                    selectedComponent === item.component
+                      ? "#ffffff"
+                      : "transparent",
+                  borderRadius:
+                    selectedComponent === item.component ? "4px" : "0",
                   borderLeft:
                     selectedComponent === item.component
                       ? "2px solid rgb(98, 109, 205)"
-                      : "none", // Border for active item
+                      : "none",
                   color:
-                    selectedComponent === item.component ? "#3e849e" : "none", // Border for active item
+                    selectedComponent === item.component
+                      ? "rgb(98, 109, 205)"
+                      : "#ffffff",
+                  // boxShadow: "0px 2px 3px 0px rgba(0, 0, 0, 0.15)",
+
+                  height:
+                    selectedComponent === item.component ? "63px" : "auto",
+                  width: selectedComponent === item.component ? "64px" : "auto",
+                  margin: selectedComponent === item.component ? "0 auto" : "0",
+                  "&:hover": {
+                    backgroundColor:
+                      selectedComponent === item.component
+                        ? "#ffffff"
+                        : "transparent",
+                    color:
+                      selectedComponent === item.component
+                        ? "rgb(98, 109, 205)"
+                        : "#ffffff",
+
+                    borderRadius: "4px",
+                    // height: "60px",
+                    // width: "70px",
+                  },
+                  cursor: ["directory", "ai", "reports", "settings"].includes(
+                    item.component
+                  )
+                    ? "no-drop"
+                    : "pointer",
+                  // "&:hover": {
+                  //   // backgroundColor: "#ffffff",
+                  //   color: "rgb(98, 109, 205)",
+
+                  //   borderRadius: "4px",
+                  //   // height: "60px",
+                  //   // width: "70px",
+                  // },
                 }}
               >
                 <Icon sx={{ fontSize: "24px", mb: 1 }}>{item.icon}</Icon>
@@ -330,11 +387,12 @@ const SideMenu: React.FC = () => {
               </ListItem>
             ))}
           </List>
+
           <Divider />
         </Box>
       </Drawer>
       <Box sx={{ display: "flex", flexGrow: 1 }}>
-        {selectedComponent === "chat" && (
+        {selectedComponent == "chat" && (
           <ContactList onSelectUser={handleSelectUser} />
         )}
         <Box

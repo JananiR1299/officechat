@@ -7,10 +7,11 @@ import {
   ListItemText,
   Container,
   Modal,
+  Grid,
 } from "@mui/material";
 import { Message } from "./messagetypes";
 import { Link } from "react-router-dom";
-import { useUser } from "components/context/UserContext";
+import moment from "moment";
 
 const style = {
   position: "absolute" as "absolute",
@@ -31,12 +32,12 @@ interface SingleChatContentProps {
 
 const SingleChatContent: React.FC<SingleChatContentProps> = ({
   userDetails,
-  messageList = [], // Default to an empty array if messageList is undefined
+  messageList = [],
 }) => {
   const [open, setOpen] = React.useState(false);
   const [imagename, setImagename] = React.useState("");
+
   const chatEndRef = useRef<HTMLDivElement | null>(null);
-  const { activeUser } = useUser();
 
   const handleOpen = (filename: string) => {
     setImagename(filename);
@@ -48,156 +49,215 @@ const SingleChatContent: React.FC<SingleChatContentProps> = ({
     setOpen(false);
   };
 
-  // Scroll to the bottom of the chat when messageList changes
+  const formatDay = (timestamp: string) => {
+    return moment(timestamp).format("dddd, MMMM Do YYYY");
+  };
+
+  const formatTime = (timestamp: string) => {
+    return moment(timestamp).format("hh:mm A");
+  };
+
+  const isImageUrl = (url: string) => /\.(jpg|jpeg|png|gif|webp)$/i.test(url);
+
+  const groupMessagesByDay = (messages: Message[]) => {
+    const sortedMessages = [...messages].sort((a, b) =>
+      moment(a.SentAt).diff(moment(b.SentAt))
+    );
+
+    const groupedMessages: { [key: string]: Message[] } = {};
+
+    sortedMessages.forEach((message) => {
+      const day = formatDay(message.SentAt);
+      if (!groupedMessages[day]) {
+        groupedMessages[day] = [];
+      }
+      groupedMessages[day].push(message);
+    });
+
+    return groupedMessages;
+  };
+
+  const groupedMessages = groupMessagesByDay(messageList);
+
   useEffect(() => {
     if (chatEndRef.current) {
       chatEndRef.current.scrollIntoView({ behavior: "auto" });
     }
   }, [messageList]);
 
-  // Helper function to format time
-  const formatTime = (timestamp: string) => {
-    const date = new Date(timestamp);
-    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-  };
-
-  // Function to determine if a string is an image URL
-  const isImageUrl = (url: string) => /\.(jpg|jpeg|png|gif|webp)$/i.test(url);
-
   return (
-    <Container
-      style={{
-        // height: "100vh",
-        display: "flex",
-        flexDirection: "column",
-        width: "100%",
-        overflow: "auto",
-        // height: "250px",
-        marginBottom: "60px",
-      }}
-    >
-      <Box sx={{ flex: 1 }}>
-        {messageList && messageList.length > 0 ? (
-          <List>
-            {messageList.map((messageContent, index) => {
-              console.log("messageContent", messageList);
-              const isSender = userDetails.UserID === messageContent.SenderID;
-              const isImage = isImageUrl(messageContent.Content);
+    <Container>
+      <Box
+        sx={{
+          overflow: "auto",
+          height: "320px",
+          "&::-webkit-scrollbar": {
+            width: "0",
+            transition: "width 0.3s ease",
+          },
+          "&:hover::-webkit-scrollbar": {
+            width: "6px",
+          },
+          "&::-webkit-scrollbar-thumb": {
+            backgroundColor: "#888",
+            borderRadius: "10px",
+          },
+          "&::-webkit-scrollbar-thumb:hover": {
+            backgroundColor: "#555",
+          },
+        }}
+      >
+        <Box
+          sx={{
+            padding: "10px",
+            marginBottom: "10px",
+          }}
+        >
+          {Object.entries(groupedMessages).map(([day, messages]) => (
+            <React.Fragment key={day}>
+              <Typography
+                variant="subtitle1"
+                align="center"
+                sx={{
+                  my: 2,
+                  color: "rgba(71, 84, 103, 1)",
+                  display: "flex",
+                  fontSize: "14px",
+                  fontWeight: "400",
+                  lineHeight: "20px",
+                  textAlign: "center",
+                  alignItems: "center",
+                  "&::before, &::after": {
+                    content: '""',
+                    flex: 1,
+                    height: "1px",
+                    backgroundColor: "rgba(234, 236, 240, 1)",
+                    margin: "0 8px",
+                  },
+                }}
+              >
+                {day}
+              </Typography>
+              <List>
+                {messages.map((messageContent, index) => {
+                  const isSender =
+                    userDetails.UserID === messageContent.SenderID;
+                  const isImage = isImageUrl(messageContent.Content);
 
-              const renderFilePreview = () => {
-                if (!messageContent.file) return null;
+                  const renderFilePreview = () => {
+                    if (!messageContent.file) return null;
 
-                const { filetype, url, filename } = messageContent.file;
-                let preview;
+                    const { filetype, url, filename } = messageContent.file;
+                    let preview;
 
-                if (filetype?.startsWith("image/")) {
-                  preview = (
-                    <Link onClick={() => handleOpen(filename)} to="#">
-                      {filename}
-                    </Link>
-                  );
-                } else if (filetype?.startsWith("video/")) {
-                  preview = (
-                    <video controls src={url} style={{ maxWidth: "200px" }} />
-                  );
-                } else if (filetype?.startsWith("audio/")) {
-                  preview = <audio controls src={url} />;
-                } else {
-                  preview = (
-                    <ListItemText
-                      primary={messageContent.Content}
-                      secondary={
-                        <>
+                    if (filetype?.startsWith("image/")) {
+                      preview = (
+                        <Link onClick={() => handleOpen(filename)} to="#">
+                          {filename}
+                        </Link>
+                      );
+                    } else if (filetype?.startsWith("video/")) {
+                      preview = (
+                        <video
+                          controls
+                          src={url}
+                          style={{ maxWidth: "200px" }}
+                        />
+                      );
+                    } else if (filetype?.startsWith("audio/")) {
+                      preview = <audio controls src={url} />;
+                    } else {
+                      preview = (
+                        <ListItemText
+                          primary={messageContent.Content}
+                          secondary={
+                            <Typography component="span" variant="body2" />
+                          }
+                        />
+                      );
+                    }
+
+                    return <div style={{ marginTop: "10px" }}>{preview}</div>;
+                  };
+
+                  return (
+                    <Grid
+                      container
+                      key={index}
+                      justifyContent={isSender ? "flex-start" : "flex-end"}
+                    >
+                      <Grid item>
+                        <ListItem
+                          sx={{
+                            flexDirection: "column",
+                            alignItems: isSender ? "flex-start" : "flex-end",
+                            padding: "0px",
+                          }}
+                        >
                           <Typography
-                            component="span"
-                            variant="body2"
-                            color="text.primary"
-                          ></Typography>
-                          <Typography
-                            component="span"
-                            variant="body2"
+                            variant="caption"
                             color="text.secondary"
-                            sx={{ fontSize: "0.75rem", marginLeft: 5 }}
+                            align={isSender ? "left" : "right"}
+                            sx={{
+                              marginBottom: "4px",
+                              alignSelf: isSender ? "flex-end" : "flex-start",
+                            }}
                           >
                             {formatTime(messageContent.SentAt)}
                           </Typography>
-                        </>
-                      }
-                    />
+                          <Box
+                            sx={{
+                              padding: "0.75rem",
+                              borderRadius: isSender
+                                ? "0px 10px 10px 10px"
+                                : "10px 0px 10px 10px",
+                              backgroundImage: isSender
+                                ? "linear-gradient(to right, #f4f3f1, #f4f3f1)"
+                                : "linear-gradient(90deg, #8548D0 0%, #29BFFF 100%)",
+                              color: isSender ? "black" : "white",
+                              margin: "5px 0",
+                              wordWrap: "break-word",
+                              width: "270px",
+                            }}
+                          >
+                            {messageContent.file ? (
+                              <ListItemText>{renderFilePreview()}</ListItemText>
+                            ) : (
+                              <ListItemText
+                                primary={
+                                  isImage ? (
+                                    <Link
+                                      onClick={() =>
+                                        handleOpen(messageContent.Content)
+                                      }
+                                      to="#"
+                                    >
+                                      <Typography
+                                        variant="body2"
+                                        sx={{
+                                          color: isSender ? "black" : "white",
+                                        }}
+                                      >
+                                        {messageContent.Content}
+                                      </Typography>
+                                    </Link>
+                                  ) : (
+                                    messageContent.Content
+                                  )
+                                }
+                              />
+                            )}
+                          </Box>
+                        </ListItem>
+                      </Grid>
+                    </Grid>
                   );
-                }
-
-                return <div style={{ marginTop: "10px" }}>{preview}</div>;
-              };
-
-              return (
-                <ListItem
-                  key={index}
-                  style={{
-                    display: "flex",
-                    justifyContent: isSender ? "flex-start" : "flex-end",
-                    padding: "0px",
-                    width: "100%",
-                  }}
-                >
-                  <Box
-                    sx={{
-                      maxWidth: "60%",
-                      padding: "0.75rem",
-                      borderRadius: "10px",
-                      backgroundColor: isSender ? "#f1f0f0" : "#e1ffc7",
-                      boxShadow: 2,
-                      textAlign: isSender ? "left" : "right",
-                      margin: "5px",
-                    }}
-                  >
-                    {messageContent.file ? (
-                      <ListItemText>{renderFilePreview()}</ListItemText>
-                    ) : (
-                      <ListItemText
-                        primary={
-                          isImage ? (
-                            <Link
-                              onClick={() => handleOpen(messageContent.Content)}
-                              to="#"
-                            >
-                              <Typography variant="body2" color="text.primary">
-                                {messageContent.Content}
-                              </Typography>
-                            </Link>
-                          ) : (
-                            messageContent.Content
-                          )
-                        }
-                        secondary={
-                          <>
-                            <Typography
-                              component="span"
-                              variant="body2"
-                              color="text.primary"
-                            ></Typography>
-                            <Typography
-                              component="span"
-                              variant="body2"
-                              color="text.secondary"
-                              sx={{ fontSize: "0.75rem", marginLeft: 5 }}
-                            >
-                              {formatTime(messageContent.SentAt)}
-                            </Typography>
-                          </>
-                        }
-                      />
-                    )}
-                  </Box>
-                </ListItem>
-              );
-            })}
-            {/* Reference element for scrolling */}
-            <div ref={chatEndRef}></div>
-          </List>
-        ) : (
-          <Typography> There is no messages.</Typography>
-        )}
+                })}
+              </List>
+            </React.Fragment>
+          ))}
+          <div ref={chatEndRef} />
+        </Box>
       </Box>
 
       <Modal

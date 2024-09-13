@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Box,
   Typography,
@@ -6,8 +6,23 @@ import {
   ListItem,
   ListItemText,
   Container,
+  Modal,
 } from "@mui/material";
+import { Link } from "react-router-dom";
 import { Message } from "./messagetypes";
+import moment from "moment";
+import { useUser } from "../../context/UserContext";
+
+const style = {
+  position: "absolute" as "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: "auto",
+  bgcolor: "background.paper",
+  boxShadow: 24,
+  p: 4,
+};
 
 interface GroupChatContentProps {
   userDetails: any;
@@ -18,68 +33,201 @@ const GroupChatContent: React.FC<GroupChatContentProps> = ({
   userDetails,
   messageList,
 }) => {
+  const [open, setOpen] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const { user, selectActiveUser } = useUser();
+  // Helper function to format time
   const formatTime = (timestamp: string) => {
-    const date = new Date(timestamp);
-    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    return moment(timestamp).format("hh:mm A");
   };
-  console.log("groupmessageList", messageList);
+
+  // Helper function to format day
+  const formatDay = (timestamp: string) => {
+    return moment(timestamp).format("dddd, MMMM Do YYYY");
+  };
+
+  // Function to determine if a string is an image URL
+  const isImageUrl = (url: string) => /\.(jpg|jpeg|png|gif|webp)$/i.test(url);
+
+  const handleOpenImage = (url: string) => {
+    setSelectedImage(url);
+    setOpen(true);
+  };
+
+  const handleCloseImage = () => {
+    setSelectedImage(null);
+    setOpen(false);
+  };
+
+  // Function to sort messages by timestamp and then group by day
+  const groupMessagesByDay = (messages: Message[]) => {
+    const sortedMessages = [...messages].sort((a, b) =>
+      moment(a.SentAt).diff(moment(b.SentAt))
+    );
+
+    const groupedMessages: { [key: string]: Message[] } = {};
+
+    sortedMessages.forEach((message) => {
+      const day = formatDay(message.SentAt);
+      if (!groupedMessages[day]) {
+        groupedMessages[day] = [];
+      }
+      groupedMessages[day].push(message);
+    });
+
+    return groupedMessages;
+  };
+
+  const groupedMessages = groupMessagesByDay(messageList);
+
   return (
-    <Container
-      style={{
-        height: "100vh",
-        display: "flex",
-        flexDirection: "column",
-        width: "100%",
-        overflow: "auto",
-      }}
-    >
-      <Box sx={{ flex: 1 }}>
-        {messageList && messageList.length > 0 ? (
-          <List>
-            {messageList.map((messageContent, index) => {
-              const isSender = userDetails.Username === messageContent.author;
-              return (
-                <ListItem
-                  key={index}
-                  style={{
-                    display: "flex",
-                    justifyContent: isSender ? "flex-end" : "flex-start",
-                  }}
-                >
-                  <Box
-                    sx={{
-                      maxWidth: "60%",
-                      padding: "0.75rem",
-                      borderRadius: "10px",
-                      backgroundColor: isSender ? "#e1ffc7" : "#f1f0f0",
-                      boxShadow: 2,
-                      alignSelf: isSender ? "flex-end" : "flex-start",
+    <Container>
+      <Box
+        sx={{
+          // flex: 1,
+          overflow: "auto",
+          height: "310px",
+          "&::-webkit-scrollbar": {
+            width: "0",
+            transition: "width 0.3s ease",
+          },
+          "&:hover::-webkit-scrollbar": {
+            width: "6px",
+          },
+          "&::-webkit-scrollbar-thumb": {
+            backgroundColor: "#888",
+            borderRadius: "10px",
+          },
+          "&::-webkit-scrollbar-thumb:hover": {
+            backgroundColor: "#555",
+          },
+        }}
+      >
+        {Object.entries(groupedMessages).map(([day, messages]) => (
+          <React.Fragment key={day}>
+            <Typography
+              variant="subtitle1"
+              align="center"
+              sx={{
+                my: 2,
+                color: "rgba(71, 84, 103, 1)",
+                display: "flex",
+                fontSize: "14px",
+                fontWeight: "400",
+                lineHeight: "20px",
+                textAlign: "center",
+                alignItems: "center",
+                "&::before, &::after": {
+                  content: '""',
+                  flex: 1,
+                  height: "1px",
+                  backgroundColor: "rgba(234, 236, 240, 1)",
+                  margin: "0 8px", // Adjust the spacing between the text and the line
+                },
+              }}
+            >
+              {day}
+            </Typography>
+            <List>
+              {messages.map((messageContent, index) => {
+                const isSender =
+                  user?.userdata?.UserID === messageContent.SenderID;
+                const isImage = isImageUrl(messageContent.Content);
+
+                return (
+                  <ListItem
+                    key={index}
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: isSender ? "flex-end" : "flex-start",
+                      padding: "0px",
+                      width: "100%",
                     }}
                   >
-                    <ListItemText
-                      primary={messageContent.Content}
-                      secondary={
-                        <>
-                          <Typography
-                            component="span"
-                            variant="body2"
-                            color="text.primary"
-                          >
-                            {messageContent.author}
-                          </Typography>
-                          {formatTime(messageContent.SentAt)}
-                        </>
-                      }
-                    />
-                  </Box>
-                </ListItem>
-              );
-            })}
-          </List>
-        ) : (
-          <Typography> There is no messages.</Typography>
-        )}
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      align={isSender ? "left" : "right"}
+                      sx={{
+                        marginBottom: "4px",
+                        alignSelf: isSender ? "flex-start" : "flex-end",
+                        marginLeft: isSender ? "320px" : "0px",
+                        marginRight: isSender ? "0px" : "320px",
+                      }}
+                    >
+                      {formatTime(messageContent.SentAt)}
+                    </Typography>
+                    <Box
+                      sx={{
+                        maxWidth: "40%",
+                        minWidth: "40%",
+                        padding: "0.75rem",
+                        borderRadius: isSender
+                          ? "0px 10px 10px 10px"
+                          : "10px 0px 10px 10px",
+                        backgroundImage: isSender
+                          ? "linear-gradient(to right, #f4f3f1, #f4f3f1)"
+                          : "linear-gradient(to right, #6a11cb 25%, #2575fc 100%)",
+                        color: isSender ? "black" : "white",
+                        textAlign: isSender ? "left" : "left",
+                        margin: "5px",
+                        wordWrap: "break-word",
+                      }}
+                    >
+                      <ListItemText
+                        primary={
+                          isImage ? (
+                            <img
+                              src={messageContent.Content}
+                              alt="Chat Image"
+                              style={{ maxWidth: "100%", cursor: "pointer" }}
+                              onClick={() =>
+                                handleOpenImage(messageContent.Content)
+                              }
+                            />
+                          ) : (
+                            messageContent.Content
+                          )
+                        }
+                        secondary={
+                          <>
+                            <Typography
+                              component="span"
+                              variant="body2"
+                              color="text.primary"
+                            >
+                              {isSender ? "You" : messageContent.author}
+                            </Typography>
+                          </>
+                        }
+                      />
+                    </Box>
+                  </ListItem>
+                );
+              })}
+            </List>
+          </React.Fragment>
+        ))}
       </Box>
+
+      {/* Modal to display the image */}
+      <Modal
+        open={open}
+        onClose={handleCloseImage}
+        aria-labelledby="modal-image-title"
+        aria-describedby="modal-image-description"
+      >
+        <Box sx={style}>
+          {selectedImage && (
+            <img
+              src={selectedImage}
+              alt="Selected"
+              style={{ maxWidth: "100%", maxHeight: "80vh" }}
+            />
+          )}
+        </Box>
+      </Modal>
     </Container>
   );
 };
