@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Box,
   Typography,
@@ -36,6 +36,8 @@ const GroupChatContent: React.FC<GroupChatContentProps> = ({
   const [open, setOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const { user, selectActiveUser } = useUser();
+
+  const chatEndRef = useRef<HTMLDivElement | null>(null);
   // Helper function to format time
   const formatTime = (timestamp: string) => {
     return moment(timestamp).format("hh:mm A");
@@ -114,6 +116,11 @@ const GroupChatContent: React.FC<GroupChatContentProps> = ({
   //     </Container>
   //   );
   // }
+  useEffect(() => {
+    if (chatEndRef.current) {
+      chatEndRef.current.scrollIntoView({ behavior: "auto" });
+    }
+  }, [messageList]);
   return (
     <Container>
       <Box
@@ -243,6 +250,7 @@ const GroupChatContent: React.FC<GroupChatContentProps> = ({
             </List>
           </React.Fragment>
         ))}
+        <div ref={chatEndRef} />
       </Box>
 
       {/* Modal to display the image */}
