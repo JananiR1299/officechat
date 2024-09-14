@@ -77,7 +77,7 @@ const LoginForm: React.FC = () => {
             xs={12}
             md={8}
             sx={{
-              backgroundImage: "url('/login_image.png')",
+              backgroundImage: "url('/login_background.png')",
               backgroundSize: "100% 95%",
               backgroundPosition: "center",
             }}
