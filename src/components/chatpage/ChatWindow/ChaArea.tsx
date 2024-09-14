@@ -42,14 +42,16 @@ const ChatArea: React.FC<ChatAreaProps> = ({ userDetails }) => {
         } else {
           return;
         }
+        console.log("responsedata", response.data);
 
-        if (response.data.error || response.data.length === 0) {
-          console.log(
-            "No messages found:",
-            response.data.error || "Empty data"
-          );
+        if (
+          response.data.error ||
+          response.data.length === 0 ||
+          response.data === undefined
+        ) {
+          console.log("No messages found:", response.data || "Empty data");
 
-          setMessageList(response.data.error);
+          setMessageList(response.data);
           setLoading(false);
         } else {
           console.log("response.data", response.data);
@@ -59,9 +61,15 @@ const ChatArea: React.FC<ChatAreaProps> = ({ userDetails }) => {
         }
       } catch (error) {
         console.error("Error fetching messages:", error);
-        setMessageList([]); // Ensure messageList is empty on error
-
-        setLoading(false); // Stop loading state on error
+        if (error.response && error.response.status === 404) {
+          console.log("No messages found, 404 error", error.response.data);
+          setMessageList(error.response.data); // Set custom error message for 404
+        } else {
+          console.error("Error fetching messages:", error);
+          setMessageList(error.response.data); // Set generic error message
+        }
+      } finally {
+        setLoading(false); // Stop loading state in both success and error cases
       }
     };
 

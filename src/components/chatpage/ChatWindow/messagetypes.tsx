@@ -2,6 +2,7 @@
 // types.ts or messageTypes.ts (for example)
 
 export interface Message {
+  error: any;
   file: any;
   author: any;
   receiverID: number;

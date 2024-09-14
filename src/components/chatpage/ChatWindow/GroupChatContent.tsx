@@ -60,7 +60,11 @@ const GroupChatContent: React.FC<GroupChatContentProps> = ({
   };
 
   // Function to sort messages by timestamp and then group by day
-  const groupMessagesByDay = (messages: Message[]) => {
+  const groupMessagesByDay = (messages) => {
+    console.log("groupmessages", messages);
+    if (messages.error) {
+      console.log("Error");
+    }
     const sortedMessages = [...messages].sort((a, b) =>
       moment(a.SentAt).diff(moment(b.SentAt))
     );
@@ -77,9 +81,39 @@ const GroupChatContent: React.FC<GroupChatContentProps> = ({
 
     return groupedMessages;
   };
-
+  // Check if messageList contains an error
+  if ("error" in messageList) {
+    console.log("5345345", messageList);
+    return (
+      <Container>
+        <Box
+          sx={{
+            height: "310px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Typography variant="h6" color="error" align="center">
+            {" "}
+            "There is no messages in this group."
+            {/* {messageList.error} */}
+          </Typography>
+        </Box>
+      </Container>
+    );
+  }
   const groupedMessages = groupMessagesByDay(messageList);
-
+  console.log("singlechatcontent", messageList);
+  // if (messageList === "There is No messages in this group.") {
+  //   return (
+  //     <Container>
+  //       <Box>
+  //         <Typography>There is No messages in this group.</Typography>
+  //       </Box>
+  //     </Container>
+  //   );
+  // }
   return (
     <Container>
       <Box
@@ -129,7 +163,7 @@ const GroupChatContent: React.FC<GroupChatContentProps> = ({
               {day}
             </Typography>
             <List>
-              {messages.map((messageContent, index) => {
+              {messages?.map((messageContent, index) => {
                 const isSender =
                   user?.userdata?.UserID === messageContent.SenderID;
                 const isImage = isImageUrl(messageContent.Content);

@@ -102,7 +102,6 @@ const Header: React.FC<HeaderProps> = ({ selectedUser, onGroupCreate }) => {
   var callerdetail;
 
   useEffect(() => {
-    // console.log(activeUser);
     socket.emit("register", user?.userdata?.UserID);
 
     socket.on(
@@ -115,19 +114,15 @@ const Header: React.FC<HeaderProps> = ({ selectedUser, onGroupCreate }) => {
         setChannelName(data.channelName);
         setToken(data.token);
         setIncomingCall(data.callerId);
-
-        console.log("Incoming call data", data);
       }
     );
 
     socket.on("callAccepted", ({ channelName, callerId }) => {
-      console.log(`Call accepted by ${callerId}`);
       setChannelName(channelName);
       setToken(token);
     });
 
     socket.on("callRejected", ({ callerId }) => {
-      console.log(`Call rejected by ${callerId}`);
       setIncomingCall(null);
       setChannelName("");
       setToken("");
@@ -207,7 +202,6 @@ const Header: React.FC<HeaderProps> = ({ selectedUser, onGroupCreate }) => {
           },
         }
       );
-      console.log("Call data stored successfully:", response.data);
     } catch (error) {
       console.error("Error storing call data:", error);
     }
@@ -489,33 +483,37 @@ const Header: React.FC<HeaderProps> = ({ selectedUser, onGroupCreate }) => {
                       sx={{ width: "56px", height: "56px" }}
                     />
                   </Box>
-                  {selectedUser?.isActive ? (
-                    <Box
-                      sx={{
-                        position: "absolute",
-                        bottom: "2%",
-                        right: 0,
-                        width: 10,
-                        height: 10,
-                        borderRadius: 5,
-                        bgcolor: "rgba(23, 178, 106, 1)",
-                        border: "1.5px solid rgba(255, 255, 255, 1)",
-                      }}
-                    />
-                  ) : (
-                    <Box
-                      sx={{
-                        position: "absolute",
-                        bottom: "2%",
-                        right: 0,
-                        width: 10,
-                        height: 10,
-                        borderRadius: 5,
-                        bgcolor: "rgba(208, 213, 221, 1)",
+                  {selectedUser?.UserID ? (
+                    selectedUser?.isActive ? (
+                      <Box
+                        sx={{
+                          position: "absolute",
+                          bottom: "2%",
+                          right: 0,
+                          width: 10,
+                          height: 10,
+                          borderRadius: 5,
+                          bgcolor: "rgba(23, 178, 106, 1)",
+                          border: "1.5px solid rgba(255, 255, 255, 1)",
+                        }}
+                      />
+                    ) : (
+                      <Box
+                        sx={{
+                          position: "absolute",
+                          bottom: "2%",
+                          right: 0,
+                          width: 10,
+                          height: 10,
+                          borderRadius: 5,
+                          bgcolor: "rgba(208, 213, 221, 1)",
 
-                        border: "1.5px solid rgba(255, 255, 255, 1)",
-                      }}
-                    />
+                          border: "1.5px solid rgba(255, 255, 255, 1)",
+                        }}
+                      />
+                    )
+                  ) : (
+                    ""
                   )}
                 </Box>
                 {/* {selectedUser.isActive && ( */}
@@ -529,22 +527,37 @@ const Header: React.FC<HeaderProps> = ({ selectedUser, onGroupCreate }) => {
                     ? selectedUser.Username
                     : selectedUser.GroupName}
                 </Typography>
-                <span
-                  style={{
-                    // position: "absolute",
-                    //marginLeft: "10px",
-                    // top: "17%",
-                    // left: "36%",
-                    width: "49px",
-                    height: "22px",
-                    borderRadius: "10%",
-                    border: "1px solid #ccc",
-                    textAlign: "center",
-                    padding: "2px 6px 2px 6px",
-                  }}
-                >
-                  online
-                </span>
+                {selectedUser?.UserID ? (
+                  selectedUser?.isActive ? (
+                    <span
+                      style={{
+                        width: "49px",
+                        height: "22px",
+                        borderRadius: "10%",
+                        border: "1px solid #ccc",
+                        textAlign: "center",
+                        padding: "2px 6px 2px 6px",
+                      }}
+                    >
+                      online
+                    </span>
+                  ) : (
+                    <span
+                      style={{
+                        width: "49px",
+                        height: "22px",
+                        borderRadius: "10%",
+                        border: "1px solid #ccc",
+                        textAlign: "center",
+                        padding: "2px 6px 2px 6px",
+                      }}
+                    >
+                      Away
+                    </span>
+                  )
+                ) : (
+                  ""
+                )}
               </Box>
             </Box>
             <AgoraRTCProvider client={rtcClient}>
