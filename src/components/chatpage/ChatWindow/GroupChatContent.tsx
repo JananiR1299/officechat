@@ -7,6 +7,7 @@ import {
   ListItemText,
   Container,
   Modal,
+  Grid,
 } from "@mui/material";
 import { Link } from "react-router-dom";
 import { Message } from "./messagetypes";
@@ -18,7 +19,7 @@ const style = {
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
-  width: "auto",
+  width: 400,
   bgcolor: "background.paper",
   boxShadow: 24,
   p: 4,
@@ -90,8 +91,10 @@ const GroupChatContent: React.FC<GroupChatContentProps> = ({
       <Container>
         <Box
           sx={{
-            height: "310px",
+            height: "350px",
             display: "flex",
+            // flexDirection: "column",
+            // width: "100%",
             alignItems: "center",
             justifyContent: "center",
           }}
@@ -163,7 +166,7 @@ const GroupChatContent: React.FC<GroupChatContentProps> = ({
                   flex: 1,
                   height: "1px",
                   backgroundColor: "rgba(234, 236, 240, 1)",
-                  margin: "0 8px", // Adjust the spacing between the text and the line
+                  margin: "0 8px",
                 },
               }}
             >
@@ -176,75 +179,80 @@ const GroupChatContent: React.FC<GroupChatContentProps> = ({
                 const isImage = isImageUrl(messageContent.Content);
 
                 return (
-                  <ListItem
+                  <Grid
+                    container
                     key={index}
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: isSender ? "flex-end" : "flex-start",
-                      padding: "0px",
-                      width: "100%",
-                    }}
+                    justifyContent={isSender ? "flex-start" : "flex-end"}
                   >
-                    <Typography
-                      variant="caption"
-                      color="text.secondary"
-                      align={isSender ? "left" : "right"}
-                      sx={{
-                        marginBottom: "4px",
-                        alignSelf: isSender ? "flex-start" : "flex-end",
-                        marginLeft: isSender ? "320px" : "0px",
-                        marginRight: isSender ? "0px" : "320px",
-                      }}
-                    >
-                      {formatTime(messageContent.SentAt)}
-                    </Typography>
-                    <Box
-                      sx={{
-                        maxWidth: "40%",
-                        minWidth: "40%",
-                        padding: "0.75rem",
-                        borderRadius: isSender
-                          ? "0px 10px 10px 10px"
-                          : "10px 0px 10px 10px",
-                        backgroundImage: isSender
-                          ? "linear-gradient(to right, #f4f3f1, #f4f3f1)"
-                          : "linear-gradient(to right, #6a11cb 25%, #2575fc 100%)",
-                        color: isSender ? "black" : "white",
-                        textAlign: isSender ? "left" : "left",
-                        margin: "5px",
-                        wordWrap: "break-word",
-                      }}
-                    >
-                      <ListItemText
-                        primary={
-                          isImage ? (
-                            <img
-                              src={messageContent.Content}
-                              alt="Chat Image"
-                              style={{ maxWidth: "100%", cursor: "pointer" }}
-                              onClick={() =>
-                                handleOpenImage(messageContent.Content)
-                              }
-                            />
-                          ) : (
-                            messageContent.Content
-                          )
-                        }
-                        secondary={
-                          <>
-                            <Typography
-                              component="span"
-                              variant="body2"
-                              color="text.primary"
-                            >
-                              {isSender ? "You" : messageContent.author}
-                            </Typography>
-                          </>
-                        }
-                      />
-                    </Box>
-                  </ListItem>
+                    <Grid item xs={8} sm={6} md={5} lg={4}>
+                      <ListItem
+                        key={index}
+                        style={{
+                          flexDirection: "column",
+                          alignItems: isSender ? "flex-start" : "flex-end",
+                          padding: "0px",
+                        }}
+                      >
+                        <Typography
+                          variant="caption"
+                          color="text.secondary"
+                          align={isSender ? "left" : "right"}
+                          sx={{
+                            marginBottom: "4px",
+                            alignSelf: isSender ? "flex-end" : "flex-start",
+                          }}
+                        >
+                          {formatTime(messageContent.SentAt)}
+                        </Typography>
+                        <Box
+                          sx={{
+                            padding: "0.75rem",
+                            borderRadius: isSender
+                              ? "0px 10px 10px 10px"
+                              : "10px 0px 10px 10px",
+                            backgroundImage: isSender
+                              ? "linear-gradient(to right, #f4f3f1, #f4f3f1)"
+                              : "linear-gradient(90deg, #8548D0 0%, #29BFFF 100%)",
+                            color: isSender ? "black" : "white",
+                            margin: "5px",
+                            wordWrap: "break-word",
+                            width: "100%",
+                          }}
+                        >
+                          <ListItemText
+                            primary={
+                              isImage ? (
+                                <img
+                                  src={messageContent.Content}
+                                  alt="Chat Image"
+                                  style={{
+                                    maxWidth: "100%",
+                                    cursor: "pointer",
+                                  }}
+                                  onClick={() =>
+                                    handleOpenImage(messageContent.Content)
+                                  }
+                                />
+                              ) : (
+                                messageContent.Content
+                              )
+                            }
+                            secondary={
+                              <>
+                                <Typography
+                                  component="span"
+                                  variant="body2"
+                                  color="text.primary"
+                                >
+                                  {isSender ? "You" : messageContent.author}
+                                </Typography>
+                              </>
+                            }
+                          />
+                        </Box>
+                      </ListItem>
+                    </Grid>
+                  </Grid>
                 );
               })}
             </List>
@@ -264,8 +272,8 @@ const GroupChatContent: React.FC<GroupChatContentProps> = ({
           {selectedImage && (
             <img
               src={selectedImage}
-              alt="Selected"
-              style={{ maxWidth: "100%", maxHeight: "80vh" }}
+              alt="Selected Image"
+              style={{ maxWidth: "50%", maxHeight: "50%" }}
             />
           )}
         </Box>
